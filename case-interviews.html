@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Interview Library — CaseEdge</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --cream: #f5f1eb;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --mist: #8899aa;
+    --white: #ffffff;
+    --border: rgba(10,10,15,0.1);
+    --premium: #1a1a2e;
+    --mckinsey: #004B87;
+    --bain: #cc0000;
+    --bcg: #00733B;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); }
+
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.2rem 5%;
+    background:rgba(245,241,235,0.95);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+  }
+  .logo { font-family:'Playfair Display',serif; font-weight:900; font-size:1.6rem; color:var(--ink); text-decoration:none; }
+  .logo span { color:var(--gold); }
+  nav ul { display:flex; gap:2rem; list-style:none; }
+  nav ul a { text-decoration:none; color:var(--ink); font-size:0.9rem; font-weight:500; opacity:0.7; }
+  .nav-cta { display:flex; gap:0.75rem; }
+  .btn-outline { padding:0.55rem 1.25rem; border:1.5px solid var(--ink); border-radius:4px; text-decoration:none; font-size:0.85rem; font-weight:600; color:var(--ink); }
+  .btn-primary { padding:0.55rem 1.25rem; background:var(--gold); border:1.5px solid var(--gold); border-radius:4px; text-decoration:none; font-size:0.85rem; font-weight:600; color:var(--ink); }
+
+  .page-header {
+    padding:8rem 5% 3rem;
+    background:white;
+    border-bottom:1px solid var(--border);
+  }
+  .breadcrumb { font-size:0.78rem; color:var(--mist); margin-bottom:1rem; }
+  .breadcrumb a { color:var(--gold); text-decoration:none; }
+  .page-header h1 { font-family:'Playfair Display',serif; font-size:clamp(2.2rem,4vw,3.5rem); font-weight:900; letter-spacing:-1px; line-height:1.1; }
+  .page-header p { font-size:1.05rem; color:var(--mist); margin-top:0.75rem; max-width:520px; line-height:1.6; }
+
+  .filter-section { margin-top:1.75rem; display:flex; flex-direction:column; gap:0.6rem; }
+
+  .filter-row {
+    display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;
+  }
+
+  .filter-row-label {
+    font-family:'DM Mono',monospace;
+    font-size:0.62rem; text-transform:uppercase; letter-spacing:1.5px;
+    color:var(--mist); width:72px; flex-shrink:0;
+  }
+
+  .filter-btn {
+    padding:0.4rem 0.9rem;
+    border:1.5px solid var(--border);
+    border-radius:20px;
+    background:white;
+    cursor:pointer;
+    font-family:'DM Sans',sans-serif;
+    font-size:0.78rem;
+    font-weight:600;
+    color:var(--ink);
+    transition:all 0.15s;
+  }
+  .filter-btn:hover { border-color:rgba(201,168,76,0.5); }
+  .filter-btn.active { border-color:var(--gold); background:var(--gold); }
+
+  .firm-btn { display:flex; align-items:center; gap:0.4rem; }
+  .firm-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+  .filter-divider { height:1px; background:var(--border); margin:0.25rem 0; }
+
+  .clear-filters-btn {
+    padding:0.4rem 0.9rem;
+    border:1.5px solid var(--border);
+    border-radius:20px;
+    background:transparent;
+    cursor:pointer;
+    font-family:'DM Sans',sans-serif;
+    font-size:0.75rem;
+    font-weight:600;
+    color:var(--mist);
+    transition:all 0.15s;
+    display:none;
+  }
+  .clear-filters-btn:hover { color:var(--ink); border-color:var(--ink); }
+  .clear-filters-btn.visible { display:inline-block; }
+
+  .main-content { padding:2.5rem 5%; }
+
+  .section-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+  .results-count { font-size:0.85rem; color:var(--mist); }
+
+  .cases-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap:1.25rem;
+  }
+
+  .case-card {
+    background:white;
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    transition:all 0.2s;
+    cursor:pointer;
+    text-decoration:none;
+    color:inherit;
+    display:flex;
+    flex-direction:column;
+  }
+  .case-card:hover { box-shadow:0 8px 30px rgba(0,0,0,0.08); transform:translateY(-2px); border-color:rgba(201,168,76,0.4); }
+
+  .case-card-top {
+    padding:1.5rem;
+    border-bottom:1px solid var(--border);
+    flex:1;
+  }
+
+  .case-meta { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem; align-items:center; }
+  .firm-badge {
+    font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;
+    padding:0.2rem 0.55rem; border-radius:3px;
+  }
+  .firm-mckinsey { background:#e8f0f8; color:var(--mckinsey); }
+  .firm-bain { background:#fce8e8; color:var(--bain); }
+  .firm-bcg { background:#e8f5ee; color:var(--bcg); }
+
+  .diff-badge {
+    font-size:0.65rem; font-weight:600; padding:0.2rem 0.55rem; border-radius:3px;
+  }
+  .diff-beginner { background:#e8f8f5; color:#27ae60; }
+  .diff-intermediate { background:#fef9e7; color:#f39c12; }
+  .diff-advanced { background:#fdf2e9; color:#e67e22; }
+  .diff-expert { background:#fdedec; color:#e74c3c; }
+
+  .industry-badge {
+    font-size:0.65rem; color:var(--mist);
+    border:1px solid var(--border); padding:0.2rem 0.55rem; border-radius:3px;
+  }
+
+  .case-card h3 { font-size:1.05rem; font-weight:700; line-height:1.4; margin-bottom:0.5rem; }
+  .case-card p { font-size:0.83rem; color:var(--mist); line-height:1.55; }
+
+  .case-card-bottom {
+    padding:0.9rem 1.5rem;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .case-stats { display:flex; gap:1rem; }
+  .case-stat { font-size:0.72rem; color:var(--mist); display:flex; align-items:center; gap:0.3rem; }
+  .start-link {
+    font-size:0.8rem; font-weight:700; color:var(--gold);
+    text-decoration:none; transition:opacity 0.15s;
+  }
+  .start-link:hover { opacity:0.7; }
+
+  .lock-icon { font-size:0.8rem; color:var(--mist); }
+
+  /* MODAL CASE VIEWER */
+  .modal-overlay {
+    display:none;
+    position:fixed; inset:0; z-index:200;
+    background:rgba(10,10,15,0.7);
+    backdrop-filter:blur(4px);
+    padding:2rem 5%;
+    overflow-y:auto;
+  }
+  .modal-overlay.open { display:flex; justify-content:center; }
+
+  .modal {
+    background:white;
+    border-radius:16px;
+    max-width:780px;
+    width:100%;
+    margin:auto;
+    overflow:hidden;
+    animation:modalIn 0.3s ease;
+  }
+
+  @keyframes modalIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+  .modal-header {
+    padding:1.75rem 2rem;
+    border-bottom:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+
+  .modal-close {
+    background:none; border:none; font-size:1.5rem; cursor:pointer;
+    color:var(--mist); line-height:1; margin-left:1rem; flex-shrink:0;
+  }
+  .modal-close:hover { color:var(--ink); }
+
+  .modal-meta { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem; }
+
+  .modal-body { padding:2rem; }
+
+  .case-section { margin-bottom:2rem; }
+  .case-section-title {
+    font-family:'DM Mono',monospace;
+    font-size:0.68rem; text-transform:uppercase; letter-spacing:2px;
+    color:var(--mist); margin-bottom:0.75rem;
+  }
+  .problem-box {
+    background:var(--cream);
+    border-left:4px solid var(--gold);
+    border-radius:0 8px 8px 0;
+    padding:1.25rem 1.5rem;
+    font-size:0.95rem; line-height:1.7; font-weight:500;
+  }
+
+  .q-tab-bar {
+    display:flex; gap:0.25rem; flex-wrap:wrap; margin-bottom:1.25rem;
+  }
+  .q-tab {
+    padding:0.45rem 0.9rem;
+    border-radius:6px;
+    border:1.5px solid var(--border);
+    background:white;
+    cursor:pointer;
+    font-size:0.78rem; font-weight:600;
+    font-family:'DM Sans',sans-serif;
+    color:var(--mist);
+    transition:all 0.15s;
+  }
+  .q-tab.active { border-color:var(--gold); background:var(--gold); color:var(--ink); }
+  .q-tab.chart { position:relative; }
+  .q-tab.chart::after { content:'📊'; font-size:0.6rem; margin-left:0.3rem; }
+
+  .q-panel { display:none; }
+  .q-panel.active { display:block; }
+
+  .q-question {
+    background:var(--cream);
+    border-radius:8px;
+    padding:1rem 1.25rem;
+    font-size:0.92rem; font-weight:600; line-height:1.5;
+    margin-bottom:1.25rem;
+  }
+
+  .hint-box {
+    background:#fff8e1;
+    border:1px solid #ffe082;
+    border-radius:6px;
+    padding:0.9rem 1.1rem;
+    font-size:0.82rem;
+    line-height:1.6;
+    margin-bottom:1rem;
+    color:#7d6608;
+  }
+  .hint-box strong { display:block; margin-bottom:0.3rem; }
+
+  .answer-reveal-btn {
+    padding:0.65rem 1.5rem;
+    border:2px solid var(--ink);
+    border-radius:6px;
+    background:none;
+    font-family:'DM Sans',sans-serif;
+    font-size:0.88rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:all 0.2s;
+    margin-bottom:1rem;
+  }
+  .answer-reveal-btn:hover { background:var(--ink); color:white; }
+
+  .good-answer {
+    display:none;
+    background:white;
+    border:1px solid var(--border);
+    border-top:3px solid #27ae60;
+    border-radius:8px;
+    padding:1.25rem 1.5rem;
+    font-size:0.88rem;
+    line-height:1.75;
+  }
+  .good-answer.show { display:block; }
+  .good-answer-label { font-size:0.68rem; text-transform:uppercase; letter-spacing:1.5px; color:#27ae60; font-weight:700; margin-bottom:0.6rem; }
+
+  .chart-area {
+    background:#f8f9fa;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:1.5rem;
+    margin-bottom:1.25rem;
+  }
+  .chart-title { font-size:0.8rem; font-weight:700; color:var(--ink); margin-bottom:1rem; }
+
+  /* Simple bar chart CSS */
+  .bar-chart { display:flex; flex-direction:column; gap:0.5rem; }
+  .bar-row { display:flex; align-items:center; gap:0.75rem; }
+  .bar-label { font-size:0.75rem; color:var(--mist); width:110px; text-align:right; flex-shrink:0; }
+  .bar-track { flex:1; background:#e9ecef; border-radius:3px; height:22px; position:relative; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:3px; display:flex; align-items:center; padding-left:0.5rem; }
+  .bar-fill span { font-size:0.72rem; font-weight:700; color:white; }
+
+  .premium-gate-inline {
+    background:var(--premium);
+    border-radius:10px;
+    padding:1.5rem;
+    color:white;
+    text-align:center;
+    margin-top:1rem;
+  }
+  .premium-gate-inline h4 { font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:0.4rem; }
+  .premium-gate-inline p { font-size:0.82rem; color:rgba(255,255,255,0.6); margin-bottom:1rem; }
+  .premium-gate-inline a {
+    display:inline-block; padding:0.6rem 1.4rem; background:var(--gold);
+    border-radius:5px; text-decoration:none; font-size:0.82rem; font-weight:700; color:var(--ink);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Case<span>Edge</span></a>
+  <ul>
+    <li><a href="behavioral.html">Behavioral</a></li>
+    <li><a href="case-interviews.html" style="opacity:1;color:var(--gold);">Case Interviews</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="login.html" class="btn-outline">Log In</a>
+    <a href="signup.html" class="btn-primary">Go Premium →</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb"><a href="index.html">Home</a> → Case Interview Library</div>
+  <h1>Case Interview<br>Library</h1>
+  <p>A growing library of full case studies in McKinsey, Bain, and BCG style. Filter by firm, industry, and difficulty. Each case includes 5–7 questions, data exhibits, and model answers.</p>
+
+  <div class="filter-section">
+    <!-- Row 1: Firms -->
+    <div class="filter-row">
+      <span class="filter-row-label">Firm</span>
+      <button class="filter-btn firm-btn active" data-group="firm" data-value="all" onclick="toggleFilter(this)">All Firms</button>
+      <button class="filter-btn firm-btn" data-group="firm" data-value="mckinsey" onclick="toggleFilter(this)">
+        <span class="firm-dot" style="background:var(--mckinsey)"></span>McKinsey
+      </button>
+      <button class="filter-btn firm-btn" data-group="firm" data-value="bain" onclick="toggleFilter(this)">
+        <span class="firm-dot" style="background:var(--bain)"></span>Bain
+      </button>
+      <button class="filter-btn firm-btn" data-group="firm" data-value="bcg" onclick="toggleFilter(this)">
+        <span class="firm-dot" style="background:var(--bcg)"></span>BCG
+      </button>
+    </div>
+
+    <!-- Row 2: Difficulty -->
+    <div class="filter-row">
+      <span class="filter-row-label">Difficulty</span>
+      <button class="filter-btn" data-group="diff" data-value="beginner" onclick="toggleFilter(this)">Beginner</button>
+      <button class="filter-btn" data-group="diff" data-value="intermediate" onclick="toggleFilter(this)">Intermediate</button>
+      <button class="filter-btn" data-group="diff" data-value="advanced" onclick="toggleFilter(this)">Advanced</button>
+      <button class="filter-btn" data-group="diff" data-value="expert" onclick="toggleFilter(this)">Expert</button>
+    </div>
+
+    <!-- Row 3: Industry -->
+    <div class="filter-row">
+      <span class="filter-row-label">Industry</span>
+      <button class="filter-btn" data-group="industry" data-value="healthcare" onclick="toggleFilter(this)">Healthcare</button>
+      <button class="filter-btn" data-group="industry" data-value="retail" onclick="toggleFilter(this)">Retail</button>
+      <button class="filter-btn" data-group="industry" data-value="tech" onclick="toggleFilter(this)">Tech</button>
+      <button class="filter-btn" data-group="industry" data-value="private-equity" onclick="toggleFilter(this)">Private Equity</button>
+      <button class="filter-btn" data-group="industry" data-value="energy" onclick="toggleFilter(this)">Energy</button>
+      <button class="filter-btn" data-group="industry" data-value="financial-services" onclick="toggleFilter(this)">Financial Services</button>
+      <button class="filter-btn" data-group="industry" data-value="industrial" onclick="toggleFilter(this)">Industrial</button>
+      <button class="filter-btn" data-group="industry" data-value="cpg" onclick="toggleFilter(this)">CPG</button>
+      <button class="filter-btn" data-group="industry" data-value="banking" onclick="toggleFilter(this)">Banking</button>
+      <button class="filter-btn" data-group="industry" data-value="manufacturing" onclick="toggleFilter(this)">Manufacturing</button>
+    </div>
+
+    <div style="margin-top:0.25rem;">
+      <button class="clear-filters-btn" id="clearBtn" onclick="clearAllFilters()">✕ Clear filters</button>
+    </div>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="section-row">
+    <div class="results-count" id="resultsCount">Showing 100 cases</div>
+  </div>
+
+  <div class="cases-grid" id="casesGrid">
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- HEALTHCARE (10 cases) -->
+    <!-- ═══════════════════════════════════════ -->
+
+    <a class="case-card" data-firm="mckinsey" data-diff="intermediate" data-industry="healthcare" onclick="openCase(); return false;" href="#">
+      <div class="case-card-top">
+        <div class="case-meta">
+          <span class="firm-badge firm-mckinsey">McKinsey</span>
+          <span class="diff-badge diff-intermediate">Intermediate</span>
+          <span class="industry-badge">Healthcare</span>
+        </div>
+        <h3>Regional Hospital System: Reversing a Profitability Decline</h3>
+        <p>A 12-hospital regional health system has seen operating margins fall from 4.2% to –0.8% over 3 years. The CEO has asked your team to diagnose the causes and recommend a path back to 3% margins.</p>
+      </div>
+      <div class="case-card-bottom">
+        <div class="case-stats">
+          <span class="case-stat">📋 6 questions</span>
+          <span class="case-stat">📊 2 exhibits</span>
+          <span class="case-stat">⏱ ~45 min</span>
+        </div>
+        <span class="start-link">Open Case →</span>
+      </div>
+    </a>
+
+
+    <!-- HC-2 -->
+    <div class="case-card" data-firm="bain" data-diff="beginner" data-industry="healthcare">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Healthcare</span></div>
+        <h3>Urgent Care Chain: Evaluating Midwest Market Entry Economics</h3>
+        <p>A PE-backed urgent care operator wants to expand from 40 Southeast clinics into the Midwest. Assess whether the unit economics support expansion, what site selection criteria matter most, and on what timeline the new markets would reach breakeven.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- HC-3 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="healthcare">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Healthcare</span></div>
+        <h3>Biopharma: Allocating $800M Across Six Competing Pipeline Assets</h3>
+        <p>A mid-cap biotech has six pipeline assets across three therapeutic areas fighting for the same R&D budget. Build a prioritization framework that accounts for probability of success, market size, timeline to revenue, and portfolio diversification before the fiscal year locks.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~60 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- HC-4 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="expert" data-industry="healthcare">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Healthcare</span></div>
+        <h3>National Insurer: How Aggressively to Exit Fee-for-Service for Value-Based Care</h3>
+        <p>A top-5 US health insurer is losing commercial members to rivals offering capitated plans at lower premiums. Leadership must determine the pace of transition away from fee-for-service, which capabilities to build or buy, and how to manage provider relationships through the shift.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- HC-5 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="healthcare">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Healthcare</span></div>
+        <h3>Medical Device Company: Launch Pricing for a Surgical Robot That Cuts Procedure Time 40%</h3>
+        <p>A med-tech company has developed a minimally invasive surgical robot that cuts procedure time by 40% — but hospitals pay surgery center fees, not procedure time. Design a launch pricing architecture that captures value without triggering GPO resistance or hospital budget freezes.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- HC-6 -->
+    <div class="case-card" data-firm="bcg" data-diff="beginner" data-industry="healthcare">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Healthcare</span></div>
+        <h3>Dental Services Organization: Valuing a 28-Practice Texas Acquisition</h3>
+        <p>A DSO acquiring independent dental practices is evaluating a 28-practice group in Texas. Assess the fair value based on EBITDA multiples, identify the post-acquisition margin improvement levers, and flag the integration risks most likely to erode returns.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- HC-7 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="healthcare">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Healthcare</span></div>
+        <h3>Drug Distributor: Build vs. Partner for Cold-Chain Specialty Drug Logistics</h3>
+        <p>Rising specialty biologics volumes are overwhelming a distributor's standard fulfillment network. The COO must decide whether to build a dedicated specialty logistics capability in-house or partner with a 3PL — each path with very different capital, risk, and margin profiles over a 5-year horizon.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- HC-8 -->
+    <div class="case-card" data-firm="bain" data-diff="expert" data-industry="healthcare">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Healthcare</span></div>
+        <h3>Hospital Merger: Why $150M in Synergies Haven't Materialized After Eight Months</h3>
+        <p>Two competing hospital systems merged eight months ago but have captured zero of the $150M synergy target. The board has engaged Bain to diagnose what went wrong across clinical, operational, and cultural dimensions — and rebuild a credible integration plan before relationships deteriorate further.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~70 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- HC-9 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="healthcare">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Healthcare</span></div>
+        <h3>Telehealth Platform: Retaining Patients as In-Person Care Rebounds</h3>
+        <p>A telehealth company that 4x'd visits during 2020–21 is now seeing volume plateau and patient churn accelerate as consumers return to in-office care. The CEO needs a retention strategy and a credible path into new care categories beyond acute episodic visits.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- HC-10 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="beginner" data-industry="healthcare">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Healthcare</span></div>
+        <h3>US Generic Drug Company: Go or No-Go on Germany and France Market Entry</h3>
+        <p>A US generic pharma company is evaluating entry into Germany and France. Estimate the market attractiveness for its top 3 molecules, identify the reimbursement and pricing hurdles unique to each market, and deliver a go/no-go recommendation with quantified logic.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- ════ RETAIL ════ -->
+
+    <!-- RT-1 -->
+    <div class="case-card" data-firm="bain" data-diff="beginner" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Retail</span></div>
+        <h3>Mid-Market Fashion Chain: Three Quarters of Negative Same-Store Sales</h3>
+        <p>A 300-store fashion chain has posted negative same-store sales for three consecutive quarters. The CFO needs a root-cause diagnosis and a turnaround plan that can be implemented before the holiday spending window — the chain's most critical revenue period of the year.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- RT-2 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Retail</span></div>
+        <h3>E-Commerce Giant: Closing a $4.20 Per-Delivery Cost Gap Without Slowing Delivery Speed</h3>
+        <p>A top-3 US e-commerce retailer spends $13.40 per last-mile delivery versus a $9.20 benchmark. The operations VP needs a 12-month plan to close this gap — covering routing optimization, micro-fulfillment, carrier mix, and delivery density — without compromising next-day SLAs.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- RT-3 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Retail</span></div>
+        <h3>Regional Grocer: Growing Private Label from 18% to 30% of Revenue</h3>
+        <p>A 600-store regional grocery chain earns only 18% of revenue from private-label products versus a 30% peer average. The CMO wants a category-entry prioritization, pricing architecture, and packaging strategy — all without alienating the national brand suppliers that fund cooperative ad programs.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- RT-4 -->
+    <div class="case-card" data-firm="bain" data-diff="expert" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Retail</span></div>
+        <h3>Legacy Department Store: Spinning Off the $1.2B Digital Business</h3>
+        <p>A department store chain's online unit now generates $1.2B in revenue, but the CFO argues it is cross-subsidizing struggling stores. The board is weighing a full spin-off or IPO. Model the scenarios, assess shareholder value creation versus destruction, and make a recommendation.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~70 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- RT-5 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="beginner" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Retail</span></div>
+        <h3>Fast-Casual Chain: Which Menu Items to Keep, Cut, or Reformulate</h3>
+        <p>A fast-casual chain battling food cost inflation needs to defend a 22% food cost ratio. Management wants data-driven guidance on which items to keep as-is, reformulate to cut cost, or remove — without losing the traffic driven by the chain's most popular (but often lowest-margin) items.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- RT-6 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Retail</span></div>
+        <h3>European Luxury Brand: Growing Revenue 20% Per Year Without Diluting Exclusivity</h3>
+        <p>A luxury handbag brand faces investor pressure to grow revenue 20% annually. But perceived scarcity is the foundation of its pricing power — and aggressive distribution would destroy the brand's ability to sustain $4,000+ price points. Design a growth strategy that doesn't cannibalize brand equity.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- RT-7 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Retail</span></div>
+        <h3>Home Improvement Retailer: Building a Dedicated Pro Contractor Sales Program</h3>
+        <p>A big-box chain earns 45% of its revenue from professional contractors but lacks any dedicated sales infrastructure for them. A competitor is aggressively poaching these accounts with tailored pricing, credit terms, and job-site delivery. Design a counter-program before more accounts are lost.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- RT-8 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="intermediate" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Retail</span></div>
+        <h3>Specialty Coffee Brand: Choosing Between Franchise, Company-Owned, and Hybrid Expansion</h3>
+        <p>A 180-location specialty coffee brand wants to reach 400 locations in 5 years. Each expansion model carries different capital requirements, quality control risks, and long-run margin profiles. The CEO needs a recommendation backed by scenario modeling and a clear execution sequence.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- RT-9 -->
+    <div class="case-card" data-firm="bcg" data-diff="beginner" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Retail</span></div>
+        <h3>Subscription Box Company: Reversing Rising Monthly Churn in a Saturated Category</h3>
+        <p>A curated subscription box service has seen monthly churn climb from 4% to 7% as the category has become crowded with well-funded competitors. Identify the primary churn drivers, segment the at-risk customer base, and recommend a retention playbook the company can execute within 90 days.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- RT-10 -->
+    <div class="case-card" data-firm="bain" data-diff="advanced" data-industry="retail">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Retail</span></div>
+        <h3>Apparel Retailer: Clearing $320M of Excess Inventory Without Destroying Brand Perception</h3>
+        <p>A specialty apparel chain is sitting on $320M of excess inventory after a demand forecasting failure. Deep blanket discounts would wipe out the year's profits and signal brand distress. Develop a staged markdown, outlet, and off-price partner strategy that clears inventory while protecting long-term brand equity.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- ════ TECH ════ -->
+
+    <!-- TK-1 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Tech</span></div>
+        <h3>B2B SaaS Company: NRR Dropped from 118% to 94% — Is This a Product, Sales, or CS Problem?</h3>
+        <p>A cloud software company's net revenue retention has collapsed over 18 months. The board wants a clear diagnosis — product gaps, sales mis-qualification, or customer success failures — and a prioritized recovery plan before the next funding round.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- TK-2 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Tech</span></div>
+        <h3>Social Media Platform: Rebuilding Ad Revenue After Losing Behavioral Targeting Data</h3>
+        <p>Regulatory changes have stripped a major social platform of its behavioral targeting capabilities, causing ad revenue to fall 22%. The CEO needs a new monetization architecture — potentially including subscriptions, commerce, and contextual advertising — that doesn't depend on personal data.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~60 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- TK-3 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="beginner" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Tech</span></div>
+        <h3>Free Productivity App: Would a $9.99/Month Premium Tier Grow or Cannibalize Revenue?</h3>
+        <p>A productivity app with 8M monthly active users earns revenue only through advertising. The founder wants to know whether launching a premium tier would generate net-new revenue or primarily cannibalize the ad base — and what conversion rate would make the bet worthwhile.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- TK-4 -->
+    <div class="case-card" data-firm="bain" data-diff="beginner" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Tech</span></div>
+        <h3>HR-Tech Startup: Is $4M ARR Underpriced Before a Series B?</h3>
+        <p>An HR-tech startup has grown entirely on word-of-mouth and has never formally tested its pricing. Before pitching its Series B, the founders want independent validation that they're not leaving money on the table — and a framework for thinking through a pricing increase.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- TK-5 -->
+    <div class="case-card" data-firm="bcg" data-diff="expert" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Tech</span></div>
+        <h3>Mid-Size Cloud Provider: Competing Against AWS and Azure Bundling on Enterprise Deals</h3>
+        <p>A cloud infrastructure company is consistently losing enterprise RFPs to hyperscalers that bundle compute, storage, AI tools, and analytics into discounted suites. Without matching their scale, the client needs a strategy to win on differentiation — not price — and protect its existing install base.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- TK-6 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Tech</span></div>
+        <h3>Chip Manufacturer: $4B Fab Investment in a Supercycle — Should We Build Now?</h3>
+        <p>A logic chip manufacturer faces a critical capex decision during peak demand: invest $4B in a new fabrication facility or wait. Past supercycles ended in severe oversupply. Frame the decision tree, identify the key demand and pricing variables, and present a hedged recommendation.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~60 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- TK-7 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Tech</span></div>
+        <h3>Cybersecurity Vendor: Picking the Right 3 of 12 International Markets to Enter First</h3>
+        <p>A cybersecurity firm with $300M in US ARR is ready to expand internationally but has limited capacity to enter more than three markets simultaneously. Build a market prioritization framework and recommend entry sequence, go-to-market model, and partner strategy for the first wave.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- TK-8 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Tech</span></div>
+        <h3>Online Learning Platform: Converting 4M Free Users to Paid Without Breaking the Flywheel</h3>
+        <p>An online education platform has 4M registered users and a 0% paid conversion rate. Introducing monetization could accelerate growth by funding content investment — or kill the organic viral growth that got the platform here. Design the monetization architecture that threads this needle.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- TK-9 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="expert" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Tech</span></div>
+        <h3>Engineer Marketplace: Which Side to Subsidize at the Competitive Tipping Point</h3>
+        <p>A freelance engineering marketplace is approaching the point where a well-funded rival could tip network effects against them. The CEO has $50M to deploy in subsidies to lock in either buyers or sellers. Determine which side delivers the durable competitive advantage and structure the subsidy program.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- TK-10 -->
+    <div class="case-card" data-firm="bain" data-diff="advanced" data-industry="tech">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Tech</span></div>
+        <h3>AI Analytics Firm: Build, Buy, or Partner to Enter Healthcare from Financial Services</h3>
+        <p>An AI firm dominant in financial services wants to expand into healthcare analytics. Data labeling costs are high, procurement cycles are 18+ months, and regulation requires clinical validation. Determine the right entry mode — and the investment sequence to reach $50M ARR in 3 years.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- ════ PRIVATE EQUITY ════ -->
+
+    <!-- PE-1 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Private Equity</span></div>
+        <h3>PE Due Diligence: Stress-Testing a $380M Industrial SaaS Acquisition Case</h3>
+        <p>A PE firm has two weeks to assess a $380M industrial workflow SaaS acquisition. The seller's pitch assumes 35% ARR growth for 5 years. Your job: validate the market size, stress-test growth assumptions, and identify the three risks most likely to break the investment case at exit.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~60 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- PE-2 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="intermediate" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Private Equity</span></div>
+        <h3>Portfolio Company: 100-Day Plan to Begin Capturing $35M of Underwritten EBITDA</h3>
+        <p>A PE firm acquired a specialty distribution business at 11x EBITDA 90 days ago. The operating partner needs a concrete 100-day action plan to begin capturing the margin expansion that justified the premium multiple — before the first LP update call in 30 days.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- PE-3 -->
+    <div class="case-card" data-firm="bain" data-diff="beginner" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Private Equity</span></div>
+        <h3>Growth Equity: Strong Repeat Rates but Deteriorating Unit Economics at a DTC Pet Food Brand</h3>
+        <p>A growth equity fund is considering a $45M investment in a direct-to-consumer pet food company with $60M revenue. Customer loyalty metrics look great — but contribution margins are shrinking with every cohort. Assess whether the business model is fundamentally sound at current terms.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- PE-4 -->
+    <div class="case-card" data-firm="bcg" data-diff="expert" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Private Equity</span></div>
+        <h3>Corporate Carve-Out: Standing Up a $600M Business as a Fully Independent Entity</h3>
+        <p>A PE firm is acquiring a $600M business unit from a Fortune 100 seller. The unit relies on the parent for IT systems, HR, treasury, and legal. Design the transition services agreement terms, standalone cost build-out, and 18-month independence roadmap with key milestones.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~70 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- PE-5 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Private Equity</span></div>
+        <h3>Behavioral Health Platform: Building a $200M Add-On Acquisition Rollup Strategy</h3>
+        <p>A PE firm has acquired a behavioral health clinic as a platform and wants to execute a focused add-on strategy to reach $200M in revenue in 4 years. Develop the acquisition criteria, integration playbook, leverage capacity analysis, and a realistic deal pipeline sizing.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~60 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- PE-6 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Private Equity</span></div>
+        <h3>Exit Preparation: Closing the Gap Between 10x and 14x EBITDA in 18 Months</h3>
+        <p>A PE firm wants to exit a logistics company at a 14x EBITDA multiple in 18 months. The business currently trades at approximately 10x on a run-rate basis. Identify the EBITDA improvement levers, strategic narrative positioning, and buyer segmentation to close the valuation gap at exit.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~50 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- PE-7 -->
+    <div class="case-card" data-firm="bcg" data-diff="beginner" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Private Equity</span></div>
+        <h3>VC Market Sizing: How Big Is the Market for Small Business Compliance Automation?</h3>
+        <p>A VC firm is evaluating a $12M investment in a startup that automates government compliance filings for small businesses. Before committing, the partner asks you to independently size the total addressable market and identify the three biggest barriers to mass adoption.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- PE-8 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="intermediate" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Private Equity</span></div>
+        <h3>Distressed Acquisition: Turnaround or Wind-Down for a Declining Print Business</h3>
+        <p>A PE firm acquired a printing and packaging company at a distressed valuation. Revenue has declined 30% in 3 years, cash is tightening, and the business faces secular headwinds. Within 6 months, the board must decide whether $40M of turnaround investment is justified or an orderly wind-down is the right path.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~50 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- PE-9 -->
+    <div class="case-card" data-firm="bain" data-diff="expert" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Private Equity</span></div>
+        <h3>Infrastructure PE: Maximum Bid Price for a 30-Year Airport Concession at 12% IRR</h3>
+        <p>A PE infrastructure fund is bidding for a 30-year airport concession. Passenger traffic forecasts span a wide range. Develop the model assumptions, sensitivity analysis on traffic and aeronautical fee growth, and calculate the maximum bid price the fund can pay while still delivering a 12% net IRR to LPs.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~70 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- PE-10 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="private-equity">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Private Equity</span></div>
+        <h3>LP Secondaries: Pricing 12 Fund Interests Across Buyout, Growth, and Venture to Hit 20% IRR</h3>
+        <p>A secondaries fund is bidding on a portfolio of 12 LP fund interests at different stages of maturity across strategies. Develop a pricing framework for each position type, model the blended return under different NAV discount scenarios, and determine the maximum aggregate bid consistent with a 20% net IRR target.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~60 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- ════ ENERGY ════ -->
+
+    <!-- EN-1 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="expert" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Energy</span></div>
+        <h3>State Utility: Decarbonizing 60% of Generation While Keeping Rate Increases Under 12%</h3>
+        <p>A state-owned utility must retire its coal fleet and replace it with renewables and storage — all while maintaining 99.97% reliability and limiting residential rate increases to 12%. Develop the capital sequencing plan, technology mix, and regulatory strategy to thread this needle over 10 years.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- EN-2 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Energy</span></div>
+        <h3>Oil Major: Which of 24 Offshore Fields to Develop, Hold, or Divest on a $6B Budget</h3>
+        <p>An integrated oil major holds interests in 24 offshore fields at varying stages of production maturity. Capital is constrained at $6B across a 3-year horizon and commodity prices are uncertain. Build a portfolio prioritization framework that maximizes NPV while managing downside exposure.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- EN-3 -->
+    <div class="case-card" data-firm="bcg" data-diff="beginner" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Energy</span></div>
+        <h3>Commercial Solar Developer: Go or No-Go on Residential Rooftop Solar</h3>
+        <p>A commercial solar developer with a strong utility-scale track record wants to evaluate the residential rooftop solar market. Assess the market attractiveness, the capability gaps the company would need to close, and make a go/no-go recommendation with clear supporting logic.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- EN-4 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Energy</span></div>
+        <h3>EV Charging Network: Redesigning the Business Model to Reach EBITDA Breakeven</h3>
+        <p>A utility-backed EV charging startup is burning $30M annually across 1,200 installed chargers. The CEO must rethink pricing, site selection, fleet and workplace B2B contracts, and grid services revenue — and find the path to EBITDA breakeven within 24 months without seeking additional equity capital.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- EN-5 -->
+    <div class="case-card" data-firm="bain" data-diff="beginner" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Beginner</span><span class="industry-badge">Energy</span></div>
+        <h3>Gas Pipeline Operator: Do the Economics Justify a $700M Capacity Expansion for LNG Export?</h3>
+        <p>A midstream operator is considering a $700M expansion to serve growing LNG export demand. Model the project IRR under bullish, base, and bearish throughput scenarios. Determine the minimum take-or-pay contract coverage needed to make the project financeable and assess the three key downside risks.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~40 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- EN-6 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Energy</span></div>
+        <h3>European Industrial Gas Company: A 5-Year Green Hydrogen Investment Strategy</h3>
+        <p>A European industrial gas company wants to invest in green hydrogen but faces high electrolyzer costs, immature demand, and uncertain policy support. Size the addressable market by end-use sector, identify the highest-NPV entry points, and recommend a phased 5-year investment sequencing with decision gates.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~60 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- EN-7 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="intermediate" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Energy</span></div>
+        <h3>Coal Mining Company: A 7-Year Wind-Down That Maximizes Cash and Manages Liabilities</h3>
+        <p>A coal miner faces accelerating mine closures as utilities decarbonize their supply chains. The CEO needs a 7-year portfolio wind-down strategy that maximizes cash generation, sequences environmental reclamation to manage liability timing, and supports affected workers — without a fire-sale of productive assets.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~50 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- EN-8 -->
+    <div class="case-card" data-firm="bain" data-diff="expert" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Energy</span></div>
+        <h3>Commodity Trading House: Launching a Carbon Credit Trading Desk from Scratch</h3>
+        <p>A commodity trading house wants to build both voluntary and compliance carbon credit trading capabilities. Develop the market entry strategy, risk limits framework, technology and talent requirements, and a 3-year P&L structure that gives the board confidence in the risk-adjusted return profile.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~70 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- EN-9 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Energy</span></div>
+        <h3>Wind Farm Operator: Diagnosing 12% Unplanned Downtime Across a Fleet of 600 Turbines</h3>
+        <p>A wind portfolio operator is underperforming its power purchase agreements due to 12% unplanned turbine downtime — double the industry benchmark. Determine whether the root cause is a maintenance scheduling failure, a spare parts supply chain problem, or a technology issue — and design the fix.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- EN-10 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="beginner" data-industry="energy">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Energy</span></div>
+        <h3>New Retail Energy Provider: Winning Small Business Customers in a Deregulated Market</h3>
+        <p>A new retail electricity supplier is entering a newly deregulated state market where small businesses have never had supplier choice. Design the customer acquisition strategy, pricing structure, and the key differentiators that will win accounts against the incumbent utility in the critical first 12 months.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- ════ FINANCIAL SERVICES ════ -->
+
+    <!-- FS-1 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Financial Services</span></div>
+        <h3>Active Asset Manager: Responding to 18% AUM Outflows Driven by Passive Funds</h3>
+        <p>An active equity manager has lost 18% of AUM in two years as investors shift to index funds. The CEO faces a choice: compete on price, pivot to alternative strategies, or double down on a concentrated high-conviction model to justify premium fees. Frame the options and make a recommendation.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- FS-2 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Financial Services</span></div>
+        <h3>P&C Insurer: Modernizing a 30-Year-Old Claims Platform While Processing 2M Claims Per Year</h3>
+        <p>A top-10 P&C insurer processes 2M annual claims on a legacy mainframe. The CTO needs a cloud migration roadmap that cuts unit claim cost by 25% — without disrupting daily claims operations or triggering a regulatory incident during a multi-year transformation.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- FS-3 -->
+    <div class="case-card" data-firm="bain" data-diff="beginner" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Financial Services</span></div>
+        <h3>Wirehouse: Acquiring a Registered Investment Advisor to Serve Mass-Affluent Clients</h3>
+        <p>A wirehouse brokerage ignores the $500K–$2M wealth segment and wants to enter it by acquiring a registered investment advisor. Assess the strategic rationale, valuation framework, and integration risks — especially around advisor retention and potential brand conflict between the two cultures.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- FS-4 -->
+    <div class="case-card" data-firm="bcg" data-diff="expert" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Financial Services</span></div>
+        <h3>Global Bank: Reallocating $80B of RWA Under New Basel IV Capital Rules</h3>
+        <p>A global systemically important bank must reallocate $80B of risk-weighted assets as Basel IV significantly increases capital charges on structured credit and derivatives. Develop the business-line reallocation framework, identify which units to de-risk or exit, and present the path to restoring group ROE.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~70 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- FS-5 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="beginner" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Financial Services</span></div>
+        <h3>Regional Credit Union: Attracting Gen Z Without Abandoning the Cooperative Model</h3>
+        <p>A regional credit union is watching younger adults choose neobanks over its traditional banking products. The board wants a growth strategy targeting 18–35 year olds — but any solution must preserve the cooperative ownership structure and community mission that differentiates the institution.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- FS-6 -->
+    <div class="case-card" data-firm="bain" data-diff="advanced" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Financial Services</span></div>
+        <h3>Fintech Lender: Charge-Off Rates 40% Above Forecast After Using Alternative Credit Scores</h3>
+        <p>A fintech consumer lender that grew 3x in 18 months on alternative credit scoring is now watching charge-off rates exceed internal forecasts by 40%. The CEO must simultaneously tighten underwriting, address model risk with regulators, and reassure the warehouse lender before the next facility renewal.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- FS-7 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Financial Services</span></div>
+        <h3>Payments Company: Defending $2.4B of Merchant Volume as Apple and Google Move Upstream</h3>
+        <p>Apple Pay and Google Pay are approaching the payments company's largest merchant relationships directly with competing acceptance solutions. Develop a competitive response that defends the at-risk volume — without triggering antitrust scrutiny or a pricing race to the bottom that erodes margins across the base.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- FS-8 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="expert" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Financial Services</span></div>
+        <h3>Sovereign Wealth Fund: Constructing a $15B Emerging Markets Private Markets Portfolio</h3>
+        <p>A $200B sovereign wealth fund wants to deploy $15B into private equity and infrastructure in Southeast Asia and Latin America. Develop the asset allocation framework by strategy and geography, target return assumptions, co-investment governance model, and manager selection criteria for the investment committee.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~70 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- FS-9 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Financial Services</span></div>
+        <h3>Life Insurer: Hybrid Agency Model or Direct Digital Channel — Without Triggering Channel Conflict</h3>
+        <p>A traditional life insurer's captive agent force has 22% annual turnover and declining per-agent productivity. The CEO wants to add a direct digital channel — but agents represent a vocal constituency who could defect to competitors if they feel threatened. Design the hybrid model and agent compensation transition.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~50 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- FS-10 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="financial-services">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Financial Services</span></div>
+        <h3>National Stock Exchange: Competing for Tech IPOs Against NYSE, NASDAQ, and Hong Kong</h3>
+        <p>A national exchange is consistently losing high-growth technology listings to international rivals. Design a strategy to retain domestic issuers and attract cross-listings through regulatory modernization, product development, and marketing — without triggering a listings standards race to the bottom or alienating institutional investors.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- ════ INDUSTRIAL ════ -->
+
+    <!-- IN-1 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="intermediate" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Industrial</span></div>
+        <h3>Industrial OEM: Growing Aftermarket Revenue from 12% to 30% Without Breaking the Dealer Network</h3>
+        <p>A $2B industrial OEM earns only 12% of revenue from aftermarket parts and services — half the 30% industry average. Direct aftermarket moves would threaten independent dealers who drive 60% of new equipment sales. Design a 3-year plan that captures $180M in aftermarket revenue without dealer revolt.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- IN-2 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Industrial</span></div>
+        <h3>Aerospace Tier-2 Supplier: Recovering Margins from 9% to 15% Under Sustained OEM Price Pressure</h3>
+        <p>A precision aerospace components supplier has seen margins compress from 18% to 9% under annual 3% price-down targets from Boeing and Airbus. Identify the levers across manufacturing cost, product mix, and commercial renegotiation that can restore 15% margins over 3 years — without losing the contracts themselves.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- IN-3 -->
+    <div class="case-card" data-firm="bain" data-diff="beginner" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Industrial</span></div>
+        <h3>HVAC Distributor: Should We Acquire a Contractor Network to Capture Installation Margins?</h3>
+        <p>A regional HVAC equipment distributor earns strong margins on equipment but watches independent contractors capture the higher-margin installation and service revenue. Evaluate the strategic and financial case for vertical integration into contractor services and identify the execution risks.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- IN-4 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="expert" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Industrial</span></div>
+        <h3>Defense Prime: Solo vs. Consortium Bid Strategy for a $3B Naval Systems Program</h3>
+        <p>A defense prime must decide whether to bid alone or form a teaming agreement for a 10-year naval systems contract. Analyze the risk-sharing structures, pricing floor assumptions, required work-share trades, and team assembly strategy that maximize both win probability and program margin over the life of the contract.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- IN-5 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Industrial</span></div>
+        <h3>Heavy Equipment Rental: Diagnosing Why Fleet Utilization Is 14 Points Below Best-in-Class</h3>
+        <p>A heavy equipment rental company averages 58% fleet utilization versus a 72% best-in-class benchmark, resulting in significant return-on-asset underperformance. Determine whether the root cause is pricing, fleet mix, geographic deployment, or customer concentration — and design a 12-month improvement plan.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- IN-6 -->
+    <div class="case-card" data-firm="bain" data-diff="advanced" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Industrial</span></div>
+        <h3>Industrial Conglomerate: Unlocking a Persistent 25% Discount to Sum-of-Parts</h3>
+        <p>A diversified industrial conglomerate trades at a 25% discount to its estimated sum-of-parts value due to perceived complexity and cross-subsidization. The board is considering divesting two of five segments. Develop the divestiture sequencing, expected re-rating thesis, and capital redeployment framework.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- IN-7 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="beginner" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Industrial</span></div>
+        <h3>Industrial Pump Maker: Hardware Premium, Price Parity, or SaaS Layer for a Connected Product?</h3>
+        <p>An industrial pump manufacturer has developed a connected pump with remote monitoring and predictive maintenance features. The sales team is debating three pricing approaches: hardware premium, parity pricing with a subscription software layer, or value-based pricing tied to customer downtime reduction. Help them decide.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- IN-8 -->
+    <div class="case-card" data-firm="bcg" data-diff="beginner" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Industrial</span></div>
+        <h3>Water Treatment Equipment Company: Is the Municipal Wastewater Market an Attractive Adjacency?</h3>
+        <p>An industrial water treatment company serving manufacturers is eyeing the municipal wastewater segment — 3x larger but dominated by established incumbents with long government procurement relationships. Assess market attractiveness, the capability gaps to close, and what a realistic entry timeline looks like.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- IN-9 -->
+    <div class="case-card" data-firm="bain" data-diff="expert" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Industrial</span></div>
+        <h3>Factory Automation Integrator: Competing as Robot OEMs Vertically Integrate into Installation</h3>
+        <p>A systems integrator that designs and installs factory automation for manufacturers is being undercut by Fanuc, KUKA, and ABB — which are now offering bundled design-plus-installation services. Build a differentiation strategy, client retention program, and new recurring-revenue model to remain indispensable.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- IN-10 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="industrial">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Industrial</span></div>
+        <h3>Copper Miner: Cutting Scope 1 and 2 Emissions 50% by 2035 Without Raising Unit Costs</h3>
+        <p>A copper mining company must halve its operational carbon footprint by 2035 under new investor mandates — without raising unit production costs in a competitive commodity market. Build the abatement cost curve, electrification roadmap, and capital sequencing plan across 6 mine sites on 3 continents.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- ════ CPG ════ -->
+
+    <!-- CG-1 -->
+    <div class="case-card" data-firm="bcg" data-diff="beginner" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">CPG</span></div>
+        <h3>US Consumer Goods Brand: Entering Indonesia and Vietnam in 24 Months</h3>
+        <p>A leading US consumer goods company wants $50M in revenue from Indonesia and Vietnam by year 3. Identify the right product portfolio for each market, the channel strategy, the local partnership structure, and the key risks that could cause the expansion to miss its targets.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- CG-2 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">CPG</span></div>
+        <h3>Snack Brand: Rationalizing 140 SKUs Without Losing Walmart and Target Shelf Space</h3>
+        <p>A snack company generates 80% of profits from 22 of its 140 SKUs. Walmart and Target account for 60% of sales and actively penalize vendors that shrink their assortment. Design the SKU rationalization approach — including the criteria, the retailer negotiation strategy, and the sequencing — to improve margins without losing critical shelf positions.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~40 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- CG-3 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">CPG</span></div>
+        <h3>Beverage Giant: Is the $1.4B Electrolyte Brand Acquisition Worth It?</h3>
+        <p>A global beverage company is evaluating a $1.4B acquisition of a premium electrolyte brand growing 60% annually. The seller's projections assume continued hyper-growth. Stress-test the assumptions, assess channel conflict with existing brands, and determine whether the deal is accretive or dilutive under realistic scenarios.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- CG-4 -->
+    <div class="case-card" data-firm="bcg" data-diff="expert" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">CPG</span></div>
+        <h3>Household Products Conglomerate: Reformulating 12 Lines Across 14 Markets Under Plastic Bans</h3>
+        <p>Plastic packaging bans on different timelines across the EU, UK, Canada, and US states are forcing reformulation of 12 core product lines. Develop the R&D prioritization framework that sequences investments by regulatory urgency and commercial impact, plus the retailer and consumer communication plan for an 18-month rollout.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- CG-5 -->
+    <div class="case-card" data-firm="bain" data-diff="beginner" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">CPG</span></div>
+        <h3>Personal Care Brand: DTC Launch Strategy That Doesn't Trigger Retailer Retaliation</h3>
+        <p>A personal care brand sold exclusively through CVS and Walgreens wants to launch a direct-to-consumer website. Both retailers have signaled they will respond aggressively to direct competition — potentially reducing shelf space and promotion support. Design a launch approach that captures the DTC opportunity without triggering that response.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- CG-6 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="intermediate" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">CPG</span></div>
+        <h3>Food Company: Pricing, Reformulation, or Shrinkflation to Recover 28% Input Cost Increases</h3>
+        <p>Commodity and packaging costs are up 28% and two rounds of price increases have already driven a 9% volume decline. The CEO must choose among a third price increase, pack-size changes, product reformulation, or accepting margin compression — each with different consumer and retailer implications.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- CG-7 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">CPG</span></div>
+        <h3>Pet Food Maker: Entering the Premium Segment Without Cannibalizing Value-Tier Volume</h3>
+        <p>Premium pet food (grain-free, raw, fresh) is growing 14% annually while the core kibble market grows 2%. The market leader must decide how to participate in premium — through organic R&D, acquisition, or licensing — without pulling high-margin volume away from its most profitable core products.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- CG-8 -->
+    <div class="case-card" data-firm="bain" data-diff="advanced" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">CPG</span></div>
+        <h3>Spirits Company: Non-Alcoholic Sub-Brand — Opportunity or Brand Dilution Risk?</h3>
+        <p>A spirits company facing declining alcohol consumption among 21–35 year olds is considering a non-alcoholic cocktail line extension. Model the cannibalization risk to the core spirits portfolio, assess brand stretch limits, analyze channel dynamics, and present a go/no-go with NPV analysis under different adoption scenarios.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- CG-9 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="expert" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">CPG</span></div>
+        <h3>CPG Conglomerate: Rolling Out Zero-Based Budgeting Across 8 Brand P&Ls in 12 Months</h3>
+        <p>A CPG conglomerate with $9B in revenue is implementing ZBB across 8 brand P&Ls to free up $400M for reinvestment in marketing and innovation. Design the budgeting methodology, variance tracking governance, incentive structures, and change management approach that will make ZBB sustainable beyond year one.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~70 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- CG-10 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="cpg">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">CPG</span></div>
+        <h3>Beauty Brand: Crisis Management and Brand Rehabilitation After a Viral Boycott</h3>
+        <p>A beauty brand experienced a viral boycott after a controversial influencer partnership. Sales dropped 18% in 6 weeks and two major retail partners are threatening to reduce shelf facings. Design the immediate damage-control response and a 12-month brand rehabilitation roadmap that rebuilds trust without appearing inauthentic.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~50 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- ════ BANKING ════ -->
+
+    <!-- BK-1 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Banking</span></div>
+        <h3>Regional Bank: Digital Transformation Roadmap to Compete Against Chime and SoFi</h3>
+        <p>A mid-size regional bank is losing deposit accounts and loan originations to neobanks. The CEO needs a 3-year digital investment roadmap — spanning mobile banking, AI-driven personalization, and targeted fintech acquisitions — that creates a credible digital proposition without a balance-sheet-busting capex program.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- BK-2 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Banking</span></div>
+        <h3>Retail Bank: Cutting 180,000 Annual Credit Card Account Losses in Half</h3>
+        <p>A top-10 retail bank is losing 180,000 credit card accounts annually to fintechs offering richer rewards and no annual fees. Design a product enhancement and retention intervention strategy that cuts attrition by 50% within 18 months — without triggering a margin-destroying rewards escalation across the full book.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- BK-3 -->
+    <div class="case-card" data-firm="bain" data-diff="beginner" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Banking</span></div>
+        <h3>Community Bank: Building an SBA Lending Practice from Scratch</h3>
+        <p>A $2B community bank focused on consumer mortgages wants to add SBA small business lending. Assess the market opportunity in its footprint, identify the operational and compliance capabilities required, and estimate the capital drag and revenue impact over a 3-year build-out horizon.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- BK-4 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="expert" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Banking</span></div>
+        <h3>Investment Bank: Restoring 14% ROE After Fixed Income Revenue Falls 35%</h3>
+        <p>An investment bank's FICC division has seen revenue fall 35% as rate volatility normalized. The CEO must reallocate capital and headcount across FICC, equities, advisory, and wealth management to restore group ROE to 14% — without triggering a talent exodus from the divisions being reduced.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- BK-5 -->
+    <div class="case-card" data-firm="bcg" data-diff="beginner" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Banking</span></div>
+        <h3>Mortgage Lender: Diagnosing a Loan Officer Productivity Gap vs. Best-in-Class Benchmark</h3>
+        <p>A large retail mortgage lender averages 3.1 closed loans per loan officer per month versus a 5.2 best-practice benchmark. The COO wants to understand whether the gap is driven by training, technology tools, lead quality, or process bottlenecks — and how to close it without adding headcount.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- BK-6 -->
+    <div class="case-card" data-firm="bain" data-diff="advanced" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Banking</span></div>
+        <h3>European Bank: Regulatory-Forced Exit from Two Emerging Markets in 18 Months</h3>
+        <p>A European bank is under regulatory pressure to reduce its emerging-market footprint and must exit two country operations within 18 months. Structure the wind-down to minimize realized balance sheet losses, limit legal and reputational exposure, and ensure continuity of service for customers during the transition.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- BK-7 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="intermediate" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Banking</span></div>
+        <h3>Retail Bank: Closing 186 Branches Without Triggering Deposit Attrition or CRA Backlash</h3>
+        <p>A retail bank with 620 branches has seen in-branch transaction volume fall 38% in 5 years. The CFO needs to close 30% of branches while protecting deposits in affected markets and avoiding community reinvestment criticism in low-income neighborhoods where branches double as financial access points.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- BK-8 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Banking</span></div>
+        <h3>Private Bank: Launching a Family Office Services Platform Without Cannibalizing Fee Income</h3>
+        <p>A private bank is watching ultra-high-net-worth clients build self-directed family offices rather than paying advisory management fees. The CEO wants to launch a competing family office services offering — but must avoid a structural reduction in the AUM-based fee income that currently sustains the business model.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- BK-9 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Banking</span></div>
+        <h3>Corporate Bank: Doubling Treasury Management Penetration Across 1,200 Lending Clients</h3>
+        <p>A corporate bank has 1,200 middle-market lending relationships but only 18% use its treasury management products. The head of commercial banking wants penetration at 40% in 2 years. Design the cross-sell strategy, incentive structure, and client segmentation approach — without restructuring the sales force.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- BK-10 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="expert" data-industry="banking">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Banking</span></div>
+        <h3>G-SIB: Building an AI-Native Fraud Detection Architecture Across Consumer, Card, and Commercial</h3>
+        <p>A global systemically important bank loses $800M annually to fraud. A legacy rules-based detection system over-flags false positives and misses novel attack patterns. Develop the AI modernization strategy, model risk governance framework, data architecture requirements, and regulatory engagement plan for a 3-year build.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~70 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- ════ MANUFACTURING ════ -->
+
+    <!-- MF-1 -->
+    <div class="case-card" data-firm="bain" data-diff="intermediate" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Auto Parts Tier-1: Consolidating 14 Plants to Save $120M Without Disrupting OEM Supply</h3>
+        <p>An automotive Tier-1 supplier operates 14 plants at 65% average utilization. The CFO needs a consolidation plan targeting $120M in savings — but any supply disruption during the transition would trigger OEM penalty clauses and risk contract non-renewal at the next competitive bid cycle.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~50 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- MF-2 -->
+    <div class="case-card" data-firm="bcg" data-diff="advanced" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Specialty Chemical Manufacturer: Moving from Cost-Plus to Value-Based Pricing</h3>
+        <p>A specialty chemicals company competing against lower-cost Asian producers has relied on cost-plus pricing, compressing EBITDA margins to 8% versus a 14% target. Develop a value-based pricing methodology for the top 5 product lines and design the salesforce enablement program required to make it stick with industrial buyers.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- MF-3 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="beginner" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Consumer Electronics Brand: Is Partial Insourcing from Taiwan to Mexico Worth It?</h3>
+        <p>A consumer electronics company outsources 100% of production to a single Taiwanese contract manufacturer. Rising geopolitical risk is prompting the board to consider moving 40% of production to Mexico. Assess the cost delta, supply chain resilience trade-off, and transition risk to help the board decide.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- MF-4 -->
+    <div class="case-card" data-firm="bain" data-diff="expert" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Medical Device Maker: Responding to an FDA Warning Letter While Protecting 60% of Revenue</h3>
+        <p>The FDA has issued a warning letter citing quality management system failures at 3 of 5 facilities and restricted production on 2 product lines. The CEO must simultaneously remediate the violations, prepare for re-inspection, and manage customer communication — all while protecting the 60% of revenue unaffected by the restrictions.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- MF-5 -->
+    <div class="case-card" data-firm="bcg" data-diff="beginner" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-beginner">Beginner</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Furniture Manufacturer: Direct E-Commerce Without Alienating Retail Distribution Partners</h3>
+        <p>A furniture manufacturer sells entirely through retail distributors — but those retailers are losing share to Wayfair and Amazon. The CEO wants to launch a direct e-commerce channel, but retail partners still control 70% of volume and some contracts include most-favored-nation pricing clauses that limit direct competition.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 5 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~35 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- MF-6 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="intermediate" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Steel Producer: Capacity Reduction, Specialty Migration, or Trade Litigation Against Chinese Imports?</h3>
+        <p>A domestic steel producer is losing market share as Chinese imports undercut prices by 18%. With 3 of 5 blast furnaces underutilized and margins negative, the CFO must choose a strategic response — or design a hybrid approach that buys time while the trade remedy case plays out over 18 months.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 1 exhibit</span><span class="case-stat">⏱ ~45 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- MF-7 -->
+    <div class="case-card" data-firm="bain" data-diff="advanced" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Industrial Packaging Company: Adapting Products and Contracts to Rolling Plastic Bans Across 14 Markets</h3>
+        <p>Plastic packaging bans are being enacted on different timelines across the EU, UK, Canada, and multiple US states. A packaging manufacturer must redesign its product portfolio, realign its materials sourcing, and reprice contracts — all while managing customer relationships through a transition that some key accounts are resistant to accepting.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- MF-8 -->
+    <div class="case-card" data-firm="bcg" data-diff="intermediate" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bcg">BCG</span><span class="diff-badge diff-intermediate">Intermediate</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Battery Manufacturer: Build, Partner, or Acquire Capacity to Fulfill a $400M EV Supply Contract</h3>
+        <p>A lithium-ion battery maker has won a $400M take-or-pay supply contract from an EV startup — but lacks the capacity to fulfill it. The COO must determine whether to build a new facility, partner with another manufacturer, or acquire capacity through M&A, and on what 24-month timeline.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~50 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- MF-9 -->
+    <div class="case-card" data-firm="mckinsey" data-diff="advanced" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-mckinsey">McKinsey</span><span class="diff-badge diff-advanced">Advanced</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Fast-Fashion Manufacturer: Nearshoring 40% of Vietnam Production to Central America</h3>
+        <p>A fast-fashion manufacturer is evaluating a shift of 40% of production from Vietnam to Guatemala and Honduras to reduce lead times and tariff exposure. Model the unit cost delta under different labor productivity scenarios, assess quality transition risk, and recommend a phased migration plan with go/no-go decision gates.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 6 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~55 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+    <!-- MF-10 -->
+    <div class="case-card" data-firm="bain" data-diff="expert" data-industry="manufacturing">
+      <div class="case-card-top"><div class="case-meta"><span class="firm-badge firm-bain">Bain</span><span class="diff-badge diff-expert">Expert</span><span class="industry-badge">Manufacturing</span></div>
+        <h3>Commercial Aircraft Components Maker: Converting a Production Line to Military MIL-SPEC Standards</h3>
+        <p>A manufacturer of commercial aircraft components has won its first DoD contract requiring MIL-SPEC quality standards, ITAR compliance, and government cost accounting regulations. Develop the operational conversion plan, revised cost structure, DCAA compliance roadmap, and risk register for the 18-month transition.</p>
+      </div><div class="case-card-bottom"><div class="case-stats"><span class="case-stat">📋 7 questions</span><span class="case-stat">📊 2 exhibits</span><span class="case-stat">⏱ ~65 min</span></div><span class="start-link">🔒 Premium</span></div>
+    </div>
+
+  </div><!-- end cases-grid -->
+</div><!-- end main-content -->
+
+  </div>
+</div>
+
+<!-- CASE MODAL -->
+<div class="modal-overlay" id="caseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-meta">
+          <span class="firm-badge firm-mckinsey">McKinsey Style</span>
+          <span class="diff-badge diff-intermediate">Intermediate</span>
+          <span class="industry-badge">Healthcare</span>
+          <span class="industry-badge">6 Questions · 2 Exhibits</span>
+        </div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;line-height:1.25;">Regional Hospital System:<br>Reversing a Profitability Decline</h2>
+      </div>
+      <button class="modal-close" onclick="closeCase()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="case-section">
+        <div class="case-section-title">Problem Statement</div>
+        <div class="problem-box">
+          Your client is MidAtlantic Health, a 12-hospital regional health system headquartered in Philadelphia. Over the past three years, operating margins have declined from +4.2% to –0.8%, and the CFO has flagged that at current trajectory, two hospitals will need to close within 18 months. The CEO has engaged McKinsey to diagnose the drivers of margin decline and recommend a set of prioritized initiatives to return the system to 3% operating margins within 24 months.
+        </div>
+      </div>
+
+      <div class="case-section">
+        <div class="case-section-title">Questions — Click to Practice</div>
+        <div class="q-tab-bar">
+          <button class="q-tab active" onclick="showQ(0,this)">Q1</button>
+          <button class="q-tab" onclick="showQ(1,this)">Q2</button>
+          <button class="q-tab chart" onclick="showQ(2,this)">Q3</button>
+          <button class="q-tab" onclick="showQ(3,this)">Q4</button>
+          <button class="q-tab chart" onclick="showQ(4,this)">Q5</button>
+          <button class="q-tab" onclick="showQ(5,this)">Q6</button>
+        </div>
+
+        <!-- Q1 -->
+        <div class="q-panel active" id="q0">
+          <div class="q-question">How would you structure your analysis of MidAtlantic Health's profitability decline? Walk me through your initial framework.</div>
+          <div class="hint-box"><strong>💡 Interviewer Hint</strong> The interviewer is testing your ability to build a hypothesis-driven, mutually exclusive and collectively exhaustive (MECE) structure. Don't just list generic buckets — tie each one to the specific context of a hospital system.</div>
+          <button class="answer-reveal-btn" onclick="revealAnswer('a0')">See Sample Good Answer</button>
+          <div class="good-answer" id="a0">
+            <div class="good-answer-label">✓ Sample Good Answer</div>
+            I'd structure this around two primary drivers: revenues and costs. On the revenue side, I want to understand volume — are patient visits declining? — and realization, meaning the revenue we actually collect per visit. Key sub-questions include payer mix shifts (are we seeing more Medicaid vs. commercial?), service line changes, and any capacity constraints. On the cost side, I'd look at labor (nursing, physician, administrative), supplies, and overhead. Healthcare margins are notoriously sensitive to labor costs, so I'd want to understand whether the decline is primarily driven by wage inflation, staffing mix, or a combination. I'd also want to understand whether this is a system-wide phenomenon or concentrated in specific hospitals or service lines — that would tell us whether we have a structural issue or a concentrated performance problem. I'd hypothesize that the combination of post-pandemic labor cost inflation and a payer mix shift toward Medicaid during economic pressure is likely the primary driver, and I'd want to confirm or disprove that first.
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="q-panel" id="q1">
+          <div class="q-question">We've gathered some initial data. It turns out that patient visit volume is actually up 8% over the three years, but revenue per visit has declined by 11%. What hypotheses does this generate, and how would you investigate?</div>
+          <div class="hint-box"><strong>💡 Interviewer Hint</strong> This is a classic "peel the onion" moment. The interviewer wants to see you generate specific, testable hypotheses — not vague possibilities. Think about all the ways revenue per visit could fall even as volumes rise.</div>
+          <button class="answer-reveal-btn" onclick="revealAnswer('a1')">See Sample Good Answer</button>
+          <div class="good-answer" id="a1">
+            <div class="good-answer-label">✓ Sample Good Answer</div>
+            An 11% drop in revenue per visit with volumes up 8% points to a revenue realization problem, not a demand problem. My top hypotheses are: first, a payer mix shift toward lower-reimbursing payers — specifically Medicaid or uncompensated care growing as a share of visits. Second, a service line mix change — if more of the incremental volume is coming from lower-acuity, lower-reimbursing service lines like urgent care versus high-margin surgical specialties, average revenue per visit would fall. Third, a negotiation or contracting issue — commercial payer rates may have eroded at contract renewals. To investigate, I'd want a payer mix breakdown before and after the three years, revenue per visit by service line, and a summary of major commercial contract terms.
+          </div>
+        </div>
+
+        <!-- Q3 - CHART -->
+        <div class="q-panel" id="q2">
+          <div class="q-question">Here is data on MidAtlantic Health's payer mix over three years. What do you observe, and what does this tell us?</div>
+
+          <div class="chart-area">
+            <div class="chart-title">MidAtlantic Health — Payer Mix by Visit Volume (%)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+              <div>
+                <div style="font-size:0.72rem;font-weight:700;color:var(--mist);margin-bottom:0.6rem;text-transform:uppercase;">3 Years Ago</div>
+                <div class="bar-chart">
+                  <div class="bar-row">
+                    <div class="bar-label">Commercial</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:52%;background:#2980b9"><span>52%</span></div></div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="bar-label">Medicare</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:28%;background:#8e44ad"><span>28%</span></div></div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="bar-label">Medicaid</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:14%;background:#e67e22"><span>14%</span></div></div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="bar-label">Self-Pay</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:6%;background:#e74c3c"><span>6%</span></div></div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:0.72rem;font-weight:700;color:var(--mist);margin-bottom:0.6rem;text-transform:uppercase;">Today</div>
+                <div class="bar-chart">
+                  <div class="bar-row">
+                    <div class="bar-label">Commercial</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:38%;background:#2980b9"><span>38%</span></div></div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="bar-label">Medicare</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:27%;background:#8e44ad"><span>27%</span></div></div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="bar-label">Medicaid</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:26%;background:#e67e22"><span>26%</span></div></div>
+                  </div>
+                  <div class="bar-row">
+                    <div class="bar-label">Self-Pay</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:9%;background:#e74c3c"><span>9%</span></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:0.7rem;color:var(--mist);margin-top:0.75rem;">Avg. reimbursement per visit: Commercial $1,820 · Medicare $1,210 · Medicaid $640 · Self-Pay $180</div>
+          </div>
+
+          <button class="answer-reveal-btn" onclick="revealAnswer('a2')">See Sample Good Answer</button>
+          <div class="good-answer" id="a2">
+            <div class="good-answer-label">✓ Sample Good Answer</div>
+            This data strongly confirms our payer mix hypothesis. Commercial payer share dropped 14 percentage points — from 52% to 38% — while Medicaid nearly doubled from 14% to 26%, and self-pay grew from 6% to 9%. Given the reimbursement rate differentials you've provided, this is a significant revenue per visit headwind. A rough back-of-envelope: if we assume a blended average, losing 14 points of commercial volume (at $1,820 per visit) and gaining 12 points of Medicaid (at $640 per visit) would reduce blended revenue per visit by roughly $200–$250, which is broadly consistent with the 11% decline we observed. This shift is likely structural — it may reflect demographic changes in the service area, Medicaid expansion, or the loss of commercially insured patients to competing systems offering better amenities or access. This finding has significant strategic implications: the revenue problem may not be solvable on the revenue side alone — we may need to focus primarily on cost structure to match the new payer reality.
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="q-panel" id="q3">
+          <div class="q-question">The client's CFO pushes back: "We can just negotiate harder with Medicaid and push for better rates." How do you respond?</div>
+          <div class="hint-box"><strong>💡 Interviewer Hint</strong> This tests your knowledge of healthcare economics and your ability to politely but firmly deliver a difficult message to a client. Be direct but constructive.</div>
+          <button class="answer-reveal-btn" onclick="revealAnswer('a3')">See Sample Good Answer</button>
+          <div class="good-answer" id="a3">
+            <div class="good-answer-label">✓ Sample Good Answer</div>
+            I'd push back gently but directly. Medicaid reimbursement rates are set by state governments — they're not negotiable in the conventional sense. MidAtlantic can advocate for rate changes through state policy channels, and there are some enhanced reimbursement programs like DSH payments for safety net hospitals that may be worth maximizing, but expecting rate increases in the 12–24 month timeframe the CEO has given us is not realistic. I'd frame it this way to the CFO: "I'd agree that advocating for better Medicaid rates is worth pursuing as a longer-term initiative, and I can help us understand the DSH and UPL program opportunities. But for the 24-month horizon we've been given, we need a plan that works within today's rate structure. That means cost reduction needs to be the primary lever, and we should size that opportunity with the same rigor we've applied to revenue."
+          </div>
+        </div>
+
+        <!-- Q5 - CHART -->
+        <div class="q-panel" id="q4">
+          <div class="q-question">We've pulled cost data. Here is a breakdown of cost per patient visit by category. Where would you focus cost reduction efforts and why?</div>
+
+          <div class="chart-area">
+            <div class="chart-title">MidAtlantic Health — Cost Per Patient Visit by Category</div>
+            <div class="bar-chart">
+              <div class="bar-row">
+                <div class="bar-label">Nursing Labor</div>
+                <div class="bar-track"><div class="bar-fill" style="width:78%;background:#e74c3c"><span>$580 (+38% vs. 3yr ago)</span></div></div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Physician Fees</div>
+                <div class="bar-track"><div class="bar-fill" style="width:52%;background:#e67e22"><span>$390 (+12%)</span></div></div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Medical Supplies</div>
+                <div class="bar-track"><div class="bar-fill" style="width:30%;background:#f39c12"><span>$225 (+28%)</span></div></div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Admin & Overhead</div>
+                <div class="bar-track"><div class="bar-fill" style="width:27%;background:#8e44ad"><span>$200 (+5%)</span></div></div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Facilities & Capex</div>
+                <div class="bar-track"><div class="bar-fill" style="width:22%;background:#2980b9"><span>$165 (+9%)</span></div></div>
+              </div>
+            </div>
+          </div>
+
+          <button class="answer-reveal-btn" onclick="revealAnswer('a4')">See Sample Good Answer</button>
+          <div class="good-answer" id="a4">
+            <div class="good-answer-label">✓ Sample Good Answer</div>
+            This data points clearly to nursing labor as the primary cost concern — it's the largest cost category at $580 per visit and has grown 38% in three years, significantly outpacing other categories. Two sub-questions immediately come to mind: first, is this a rate problem (nurses being paid more per hour) or a productivity problem (more nursing hours per patient), or both? And second, how much of this is driven by agency/travel nursing versus employed staff? Travel nurse rates are often 2–3x employed nurse rates, and many health systems saw dramatic increases in travel nurse usage post-2020. If a significant portion of that $580 is agency nursing, there's a clear path to savings through employed staff retention and recruitment. I'd prioritize a detailed nursing labor analysis — breaking out rate vs. productivity vs. channel — as the first workstream, while running parallel analyses on medical supplies, where the 28% increase also warrants a procurement and utilization review.
+          </div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="q-panel" id="q5">
+          <div class="q-question">Synthesize your findings. If you were presenting to the CEO right now, what is your top-line recommendation and the 3 highest-priority initiatives you'd pursue?</div>
+          <button class="answer-reveal-btn" onclick="revealAnswer('a5')">See Sample Good Answer</button>
+          <div class="good-answer" id="a5">
+            <div class="good-answer-label">✓ Sample Good Answer</div>
+            The headline finding is this: MidAtlantic's margin decline is primarily driven by a structural payer mix shift toward Medicaid — not by operational underperformance — combined with nursing labor cost inflation that has compounded the problem. Because the payer mix shift is structural and largely non-negotiable in the short term, the path to 3% margins runs primarily through cost reduction, not revenue recovery. My top three initiatives, in priority order, are: First, nursing labor restructuring — reduce dependence on agency and travel nursing by investing in employed nurse retention and accelerating hiring pipelines. This is the single largest lever and could recover $80–120 per visit, or roughly $20–30M annually depending on volume. Second, medical supplies procurement — implement a standardized vendor strategy and utilization review across all 12 hospitals. A 10–15% reduction from benchmarking is achievable and could recover another $15–20M. Third, service line portfolio review — determine whether there are low-margin service lines or underperforming hospitals where selective volume rationalization could improve the blended margin mix. I'd also recommend a parallel workstream on Medicaid supplemental program maximization as a revenue opportunity, but that's a supporting initiative, not a primary one.
+          </div>
+
+          <div class="premium-gate-inline" style="margin-top:1.5rem;">
+            <h4>How would a McKinsey interviewer score this answer?</h4>
+            <p>Premium includes "Great Answer" breakdowns with annotated coaching notes on structure, communication style, and what separates a passing answer from an offer-generating one.</p>
+            <a href="signup.html">Unlock Premium Coaching →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Multi-select filter state
+  const activeFilters = { firm: new Set(), diff: new Set(), industry: new Set() };
+
+  function toggleFilter(btn) {
+    const group = btn.dataset.group;
+    const value = btn.dataset.value;
+
+    if (group === 'firm' && value === 'all') {
+      // "All Firms" clears firm filters
+      activeFilters.firm.clear();
+      document.querySelectorAll('[data-group="firm"]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    } else {
+      // Deactivate "All Firms" if a specific firm is picked
+      const allFirmsBtn = document.querySelector('[data-group="firm"][data-value="all"]');
+      if (group === 'firm') allFirmsBtn.classList.remove('active');
+
+      btn.classList.toggle('active');
+      if (activeFilters[group].has(value)) {
+        activeFilters[group].delete(value);
+      } else {
+        activeFilters[group].add(value);
+      }
+
+      // If no firms selected, re-activate All Firms
+      if (group === 'firm' && activeFilters.firm.size === 0) {
+        allFirmsBtn.classList.add('active');
+      }
+    }
+
+    applyFilters();
+    updateClearBtn();
+  }
+
+  function applyFilters() {
+    const cards = document.querySelectorAll('.case-card');
+    let visible = 0;
+
+    cards.forEach(card => {
+      const firm = card.dataset.firm;
+      const diff = card.dataset.diff;
+      const industry = card.dataset.industry;
+
+      const firmMatch = activeFilters.firm.size === 0 || activeFilters.firm.has(firm);
+      const diffMatch = activeFilters.diff.size === 0 || activeFilters.diff.has(diff);
+      const industryMatch = activeFilters.industry.size === 0 || activeFilters.industry.has(industry);
+
+      if (firmMatch && diffMatch && industryMatch) {
+        card.style.display = '';
+        visible++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    document.getElementById('resultsCount').textContent =
+      `Showing ${visible} case${visible !== 1 ? 's' : ''}`;
+  }
+
+  function clearAllFilters() {
+    activeFilters.firm.clear();
+    activeFilters.diff.clear();
+    activeFilters.industry.clear();
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-group="firm"][data-value="all"]').classList.add('active');
+    applyFilters();
+    updateClearBtn();
+  }
+
+  function updateClearBtn() {
+    const hasActive = activeFilters.firm.size > 0 || activeFilters.diff.size > 0 || activeFilters.industry.size > 0;
+    document.getElementById('clearBtn').classList.toggle('visible', hasActive);
+  }
+
+  function openCase() {
+    document.getElementById('caseModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCase() {
+    document.getElementById('caseModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function showQ(idx, btn) {
+    document.querySelectorAll('.q-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.q-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('q'+idx).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function revealAnswer(id) {
+    const el = document.getElementById(id);
+    el.classList.add('show');
+    el.previousElementSibling.style.display = 'none';
+  }
+</script>
+</body>
+</html>

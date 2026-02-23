@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseEdge — Interview Mastery Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --cream: #f5f1eb;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --slate: #2c3e50;
+    --mist: #8899aa;
+    --white: #ffffff;
+    --card-bg: #ffffff;
+    --border: rgba(10,10,15,0.1);
+    --premium: #1a1a2e;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display: flex; align-items:center; justify-content:space-between;
+    padding: 1.2rem 5%;
+    background: rgba(245,241,235,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 1.6rem;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--gold); }
+
+  nav ul { display:flex; gap:2rem; list-style:none; }
+  nav ul a {
+    text-decoration:none;
+    color: var(--ink);
+    font-size:0.9rem;
+    font-weight:500;
+    opacity:0.7;
+    transition: opacity 0.2s;
+  }
+  nav ul a:hover { opacity:1; }
+
+  .nav-cta {
+    display:flex; gap:0.75rem; align-items:center;
+  }
+
+  .btn-outline {
+    padding: 0.55rem 1.25rem;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    text-decoration:none;
+    font-size:0.85rem;
+    font-weight:600;
+    color: var(--ink);
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { background:var(--ink); color:var(--cream); }
+
+  .btn-primary {
+    padding: 0.55rem 1.25rem;
+    background: var(--gold);
+    border: 1.5px solid var(--gold);
+    border-radius: 4px;
+    text-decoration:none;
+    font-size:0.85rem;
+    font-weight:600;
+    color: var(--ink);
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #b8943e; border-color: #b8943e; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 5% 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(201,168,76,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(44,62,80,0.08) 0%, transparent 50%);
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid var(--gold-light);
+    padding: 0.35rem 0.85rem;
+    border-radius: 2px;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.2rem, 7vw, 6.5rem);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -2px;
+    max-width: 800px;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 1.2rem;
+    color: var(--mist);
+    max-width: 520px;
+    margin: 2rem 0 3rem;
+    line-height: 1.7;
+    font-weight: 400;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .hero-actions {
+    display: flex; gap:1rem; flex-wrap:wrap;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  .btn-hero {
+    padding: 0.9rem 2.2rem;
+    background: var(--ink);
+    color: var(--cream);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: all 0.2s;
+    border: 2px solid var(--ink);
+  }
+  .btn-hero:hover { background:transparent; color:var(--ink); }
+
+  .btn-hero-secondary {
+    padding: 0.9rem 2.2rem;
+    background: transparent;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: 2px solid rgba(10,10,15,0.2);
+    transition: all 0.2s;
+  }
+  .btn-hero-secondary:hover { border-color: var(--ink); }
+
+  .hero-stats {
+    display: flex; gap:3rem; margin-top:4rem;
+    animation: fadeUp 0.8s ease 0.4s both;
+  }
+
+  .stat-item {}
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--mist);
+    margin-top:0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* FLOATING CARDS */
+  .hero-cards {
+    position: absolute;
+    right: 5%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    animation: fadeLeft 1s ease 0.5s both;
+  }
+
+  @media (max-width: 900px) {
+    .hero-cards { display:none; }
+  }
+
+  .float-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.08);
+    border: 1px solid var(--border);
+    min-width: 260px;
+  }
+
+  .float-card-tag {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .tag-behav { color: #2980b9; }
+  .tag-case { color: #8e44ad; }
+  .tag-premium { color: var(--gold); }
+
+  .float-card h4 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .float-card-meta {
+    display:flex; gap:0.5rem; margin-top:0.6rem;
+    align-items:center;
+  }
+  .difficulty-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .diff-beg { background:#e8f8f5; color:#27ae60; }
+  .diff-int { background:#fef9e7; color:#f39c12; }
+  .diff-exp { background:#fdedec; color:#e74c3c; }
+
+  /* SECTION COMMON */
+  section { padding: 6rem 5%; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+  }
+
+  .section-sub {
+    font-size: 1.05rem;
+    color: var(--mist);
+    max-width: 500px;
+    line-height: 1.7;
+  }
+
+  /* FEATURES */
+  #features { background: white; }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3.5rem;
+  }
+
+  .feature-card {
+    padding: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    opacity:0;
+    transition: opacity 0.25s;
+  }
+  .feature-card:hover { box-shadow: 0 8px 40px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .feature-card:hover::before { opacity:1; }
+
+  .feature-icon {
+    width: 48px; height:48px;
+    background: var(--cream);
+    border-radius: 10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem;
+    margin-bottom:1.2rem;
+  }
+
+  .feature-card h3 {
+    font-family:'Playfair Display', serif;
+    font-size:1.25rem;
+    font-weight:700;
+    margin-bottom:0.6rem;
+  }
+  .feature-card p {
+    font-size:0.9rem;
+    color:var(--mist);
+    line-height:1.65;
+  }
+
+  .premium-badge {
+    display:inline-block;
+    font-size:0.62rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    padding:0.2rem 0.5rem;
+    border-radius:3px;
+    background: linear-gradient(135deg, var(--gold), #b8943e);
+    color:white;
+    margin-top:0.8rem;
+  }
+
+  /* HOW IT WORKS */
+  #how-it-works { background: var(--cream); }
+
+  .steps {
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:1.5rem; margin-top:3.5rem;
+    counter-reset: steps;
+  }
+
+  .step-card {
+    padding: 2rem;
+    counter-increment: steps;
+    position: relative;
+  }
+  .step-card::before {
+    content: counter(steps, decimal-leading-zero);
+    font-family:'Playfair Display', serif;
+    font-size:3.5rem;
+    font-weight:900;
+    color:var(--gold-light);
+    display:block;
+    margin-bottom:1rem;
+    line-height:1;
+  }
+  .step-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; }
+  .step-card p { font-size:0.88rem; color:var(--mist); line-height:1.6; }
+
+  /* PRICING */
+  #pricing { background: white; }
+
+  .pricing-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+    gap:1.5rem;
+    margin-top:3.5rem;
+    max-width:900px;
+  }
+
+  .plan-card {
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    position:relative;
+  }
+
+  .plan-card.popular {
+    border-color: var(--gold);
+    background: var(--premium);
+    color: white;
+  }
+
+  .popular-tag {
+    position:absolute; top:-12px; left:50%; transform:translateX(-50%);
+    background: var(--gold);
+    color: var(--ink);
+    font-size:0.68rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    padding:0.3rem 0.9rem;
+    border-radius:20px;
+  }
+
+  .plan-name {
+    font-family:'DM Mono', monospace;
+    font-size:0.75rem;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:var(--mist);
+    margin-bottom:0.75rem;
+  }
+  .plan-card.popular .plan-name { color:var(--gold-light); }
+
+  .plan-price {
+    font-family:'Playfair Display', serif;
+    font-size:3rem;
+    font-weight:900;
+    line-height:1;
+    margin-bottom:0.25rem;
+  }
+
+  .plan-period { font-size:0.85rem; color:var(--mist); }
+  .plan-card.popular .plan-period { color:var(--gold-light); }
+
+  .plan-divider { border:none; border-top:1px solid var(--border); margin:1.5rem 0; }
+  .plan-card.popular .plan-divider { border-color: rgba(255,255,255,0.15); }
+
+  .plan-features { list-style:none; }
+  .plan-features li {
+    font-size:0.88rem;
+    padding:0.4rem 0;
+    display:flex; gap:0.5rem; align-items:flex-start;
+    color: inherit;
+    opacity:0.85;
+  }
+  .plan-features li::before { content:'✓'; color:var(--gold); font-weight:700; flex-shrink:0; }
+
+  .plan-btn {
+    display:block; text-align:center; margin-top:1.75rem;
+    padding:0.85rem;
+    border-radius:6px;
+    font-weight:700;
+    font-size:0.9rem;
+    text-decoration:none;
+    transition:all 0.2s;
+  }
+  .plan-btn-free {
+    border:2px solid var(--ink);
+    color:var(--ink);
+  }
+  .plan-btn-free:hover { background:var(--ink); color:white; }
+  .plan-btn-premium {
+    background: var(--gold);
+    color: var(--ink);
+    border:2px solid var(--gold);
+  }
+  .plan-btn-premium:hover { background:#b8943e; border-color:#b8943e; }
+
+  /* TESTIMONIALS */
+  #testimonials { background:var(--cream); }
+
+  .testimonials-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+    gap:1.5rem;
+    margin-top:3.5rem;
+  }
+
+  .testimonial-card {
+    background:white;
+    border-radius:12px;
+    padding:2rem;
+    border:1px solid var(--border);
+  }
+
+  .stars { color:var(--gold); font-size:0.9rem; margin-bottom:1rem; }
+
+  .testimonial-card blockquote {
+    font-size:0.92rem;
+    line-height:1.7;
+    color:var(--ink);
+    margin-bottom:1.25rem;
+    font-style:italic;
+  }
+
+  .testimonial-author { display:flex; gap:0.75rem; align-items:center; }
+  .author-avatar {
+    width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:0.85rem; color:white;
+  }
+  .author-name { font-weight:600; font-size:0.88rem; }
+  .author-role { font-size:0.75rem; color:var(--mist); }
+
+  /* CTA BANNER */
+  .cta-banner {
+    background: var(--premium);
+    color:white;
+    text-align:center;
+    padding:6rem 5%;
+  }
+  .cta-banner .section-title { color:white; }
+  .cta-banner p { color:rgba(255,255,255,0.6); max-width:500px; margin:1rem auto 2.5rem; line-height:1.7; }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    color:rgba(255,255,255,0.5);
+    padding: 3rem 5%;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:1rem;
+  }
+  footer .logo { color:white; }
+  footer nav-links { display:flex; gap:1.5rem; }
+  .footer-links { display:flex; gap:1.5rem; list-style:none; }
+  .footer-links a { color:rgba(255,255,255,0.4); text-decoration:none; font-size:0.82rem; }
+  .footer-links a:hover { color:white; }
+  footer p { font-size:0.78rem; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(24px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeLeft {
+    from { opacity:0; transform:translate(40px,-50%); }
+    to { opacity:1; transform:translate(0,-50%); }
+  }
+
+  /* INTERVIEW TYPE SELECTOR (demo) */
+  .type-selector {
+    display:flex; gap:1rem; margin-top:3.5rem; flex-wrap:wrap;
+  }
+  .type-btn {
+    padding:0.75rem 1.75rem;
+    border-radius:8px;
+    border: 2px solid var(--border);
+    background:white;
+    cursor:pointer;
+    font-family:'DM Sans', sans-serif;
+    font-size:0.95rem;
+    font-weight:600;
+    transition:all 0.2s;
+    text-decoration:none;
+    color:var(--ink);
+    display:flex; align-items:center; gap:0.5rem;
+  }
+  .type-btn:hover, .type-btn.active {
+    border-color:var(--gold);
+    background:var(--gold);
+    color:var(--ink);
+  }
+  .type-btn .icon { font-size:1.2rem; }
+
+  .sample-questions { margin-top:2.5rem; }
+
+  .q-card {
+    background:white;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:1.5rem;
+    margin-bottom:0.75rem;
+    display:flex; justify-content:space-between; align-items:center;
+    cursor:pointer;
+    transition:all 0.2s;
+  }
+  .q-card:hover { border-color:var(--gold); box-shadow:0 2px 16px rgba(0,0,0,0.06); }
+
+  .q-card-left h4 { font-size:0.92rem; font-weight:600; margin-bottom:0.3rem; }
+  .q-card-left p { font-size:0.78rem; color:var(--mist); }
+
+  .q-arrow {
+    font-size:1.2rem;
+    color:var(--mist);
+    transition:transform 0.2s;
+  }
+  .q-card:hover .q-arrow { transform:translateX(4px); color:var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">Case<span>Edge</span></a>
+  <ul>
+    <li><a href="behavioral.html">Behavioral</a></li>
+    <li><a href="case-interviews.html">Case Interviews</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="login.html" class="btn-outline">Log In</a>
+    <a href="signup.html" class="btn-primary">Start Free →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-tag">Interview Mastery Platform</div>
+  <h1>Crack the <em>case.</em><br>Land the offer.</h1>
+  <p class="hero-sub">The most rigorous prep platform for behavioral and case interviews at McKinsey, Bain, BCG, and elite companies worldwide.</p>
+  <div class="hero-actions">
+    <a href="signup.html" class="btn-hero">Start Practicing Free</a>
+    <a href="case-interviews.html" class="btn-hero-secondary">Browse Case Library</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-num">200+</div>
+      <div class="stat-label">Behavioral Questions</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">80+</div>
+      <div class="stat-label">Full Case Studies</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">10+</div>
+      <div class="stat-label">Industries Covered</div>
+    </div>
+  </div>
+
+  <!-- Floating preview cards -->
+  <div class="hero-cards">
+    <div class="float-card">
+      <div class="float-card-tag tag-behav">Behavioral</div>
+      <h4>"Tell me about a time you led through ambiguity."</h4>
+      <div class="float-card-meta">
+        <span class="difficulty-badge diff-beg">Core Question</span>
+        <span style="font-size:0.72rem;color:var(--mist)">STAR Framework ✓</span>
+      </div>
+    </div>
+    <div class="float-card">
+      <div class="float-card-tag tag-case">Case Interview</div>
+      <h4>Hospital System Profitability — McKinsey Style</h4>
+      <div class="float-card-meta">
+        <span class="difficulty-badge diff-int">Intermediate</span>
+        <span style="font-size:0.72rem;color:var(--mist)">Healthcare · 6 questions</span>
+      </div>
+    </div>
+    <div class="float-card">
+      <div class="float-card-tag tag-premium">⭐ Premium</div>
+      <h4>AI-tailored answers based on your resume experience</h4>
+      <div class="float-card-meta">
+        <span style="font-size:0.72rem;color:var(--mist)">Personalized for you</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">What You Get</div>
+  <div class="section-title">Built for the top 1%<br>of job seekers</div>
+  <p class="section-sub">Every feature is designed to replicate the actual interview experience at the most competitive firms.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3>Behavioral Q&A Bank</h3>
+      <p>Curated behavioral questions covering leadership, conflict, failure, teamwork, and more. Modeled after real MBB, finance, and tech interview formats.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Case Interview Library</h3>
+      <p>Full case studies in McKinsey, Bain, and BCG style. Each case includes 5–7 structured questions, data exhibits, and detailed model answers. New cases added regularly.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📈</div>
+      <h3>Progress Tracking</h3>
+      <p>Your personal dashboard tracks every question attempted, performance trends, weak spots, and readiness score across behavioral and case categories.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏭</div>
+      <h3>Multi-Industry Cases</h3>
+      <p>Cases spanning healthcare, retail, tech, private equity, energy, financial services, consumer goods, education, and more — from beginner to expert level.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✨</div>
+      <h3>AI-Personalized Answers</h3>
+      <p>Upload your resume and build a profile. Get behavioral answers automatically tailored to your actual experience, making your responses authentic and compelling.</p>
+      <span class="premium-badge">Premium</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏆</div>
+      <h3>Good → Great Answers</h3>
+      <p>See the difference between a passing answer and a standout one. Premium members get side-by-side comparisons with annotated breakdowns of what elevates a response.</p>
+      <span class="premium-badge">Premium</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="section-label">The Process</div>
+  <div class="section-title">From signup to<br>offer letter</div>
+  <div class="steps">
+    <div class="step-card">
+      <h3>Create Your Profile</h3>
+      <p>Sign up, upload your resume, and tell us your target firms. We calibrate your experience and goals.</p>
+    </div>
+    <div class="step-card">
+      <h3>Choose Your Prep</h3>
+      <p>Pick behavioral or case interview mode. Filter by firm style, industry, or difficulty. Start wherever makes sense.</p>
+    </div>
+    <div class="step-card">
+      <h3>Practice & Learn</h3>
+      <p>Work through questions. See sample answers. Premium users get personalized responses and great-vs-good breakdowns.</p>
+    </div>
+    <div class="step-card">
+      <h3>Track Your Progress</h3>
+      <p>Your dashboard shows what's been mastered, where to improve, and your overall interview readiness score.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SAMPLE QUESTIONS PREVIEW -->
+<section id="sample" style="background:white;">
+  <div class="section-label">Platform Preview</div>
+  <div class="section-title">Start practicing<br>right now</div>
+
+  <div class="type-selector">
+    <a href="behavioral.html" class="type-btn active"><span class="icon">🎯</span> Behavioral</a>
+    <a href="case-interviews.html" class="type-btn"><span class="icon">📊</span> Case Interviews (MBB)</a>
+  </div>
+
+  <div class="sample-questions">
+    <div class="q-card" onclick="window.location='behavioral.html'">
+      <div class="q-card-left">
+        <h4>Tell me about a time you had to influence without authority.</h4>
+        <p>Leadership · Influence & Persuasion · Core Question</p>
+      </div>
+      <span class="q-arrow">→</span>
+    </div>
+    <div class="q-card" onclick="window.location='behavioral.html'">
+      <div class="q-card-left">
+        <h4>Describe a situation where you failed. What did you learn?</h4>
+        <p>Self-Awareness · Resilience · Core Question</p>
+      </div>
+      <span class="q-arrow">→</span>
+    </div>
+    <div class="q-card" onclick="window.location='behavioral.html'">
+      <div class="q-card-left">
+        <h4>Give me an example of a time you had to manage competing priorities.</h4>
+        <p>Time Management · Prioritization · Core Question</p>
+      </div>
+      <span class="q-arrow">→</span>
+    </div>
+    <div class="q-card" onclick="window.location='case-interviews.html'">
+      <div class="q-card-left">
+        <h4>Case: Retail Chain Declining Profitability — BCG Style</h4>
+        <p>Retail · Intermediate · 6 questions · 1 exhibit</p>
+      </div>
+      <span class="q-arrow">→</span>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-label">Plans</div>
+  <div class="section-title">Simple, transparent<br>pricing</div>
+  <div class="pricing-grid">
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">$0</div>
+      <div class="plan-period">forever</div>
+      <hr class="plan-divider">
+      <ul class="plan-features">
+        <li>50 behavioral questions</li>
+        <li>10 full case studies</li>
+        <li>Sample "good" answers</li>
+        <li>Basic progress tracking</li>
+        <li>All difficulty levels</li>
+        <li>All industries (limited)</li>
+      </ul>
+      <a href="signup.html" class="plan-btn plan-btn-free">Get Started Free</a>
+    </div>
+    <div class="plan-card popular">
+      <div class="popular-tag">Most Popular</div>
+      <div class="plan-name">Premium</div>
+      <div class="plan-price">$29</div>
+      <div class="plan-period">per month · cancel anytime</div>
+      <hr class="plan-divider">
+      <ul class="plan-features">
+        <li>All behavioral questions</li>
+        <li>Full case library</li>
+        <li>Good <strong style="color:var(--gold)">+ Great</strong> answer comparisons</li>
+        <li>AI-personalized answers from your resume</li>
+        <li>Full progress analytics dashboard</li>
+        <li>All industries & difficulty levels</li>
+        <li>New cases added monthly</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="signup.html" class="plan-btn plan-btn-premium">Start Premium →</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <div class="section-label" style="color:var(--gold);">Get Started</div>
+  <div class="section-title">Your offer is<br><em style="color:var(--gold);font-style:italic;">one case away.</em></div>
+  <p>The most rigorous prep platform for MBB-style case interviews and behavioral questions — built for candidates who want to be truly ready.</p>
+  <a href="signup.html" class="btn-hero" style="display:inline-block;">Create Free Account →</a>
+</div>
+
+<!-- FOOTER -->
+<footer id="about">
+  <a href="index.html" class="logo">Case<span style="color:var(--gold)">Edge</span></a>
+  <ul class="footer-links">
+    <li><a href="behavioral.html">Behavioral</a></li>
+    <li><a href="case-interviews.html">Cases</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+  </ul>
+  <p>© 2025 CaseEdge. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — CaseEdge</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --cream: #f5f1eb;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --mist: #8899aa;
+    --white: #ffffff;
+    --border: rgba(10,10,15,0.1);
+    --premium: #1a1a2e;
+    --green: #27ae60;
+    --orange: #f39c12;
+    --red: #e74c3c;
+    --blue: #2980b9;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); display:flex; min-height:100vh; }
+
+  /* SIDEBAR NAV */
+  .sidebar-nav {
+    width: 240px; flex-shrink:0;
+    background: var(--ink);
+    min-height:100vh;
+    padding: 2rem 1.5rem;
+    display:flex; flex-direction:column;
+    position:fixed; left:0; top:0; bottom:0;
+    overflow-y:auto;
+  }
+
+  .sidebar-logo { font-family:'Playfair Display',serif; font-weight:900; font-size:1.5rem; color:white; margin-bottom:2.5rem; text-decoration:none; }
+  .sidebar-logo span { color:var(--gold); }
+
+  .nav-section-label {
+    font-family:'DM Mono',monospace;
+    font-size:0.62rem; text-transform:uppercase; letter-spacing:2px;
+    color:rgba(255,255,255,0.3); margin-bottom:0.6rem; margin-top:1.5rem;
+  }
+
+  .nav-item {
+    display:flex; align-items:center; gap:0.6rem;
+    padding:0.6rem 0.75rem; border-radius:7px;
+    text-decoration:none; color:rgba(255,255,255,0.6);
+    font-size:0.88rem; font-weight:500; margin-bottom:0.15rem;
+    transition:all 0.15s;
+  }
+  .nav-item:hover { background:rgba(255,255,255,0.07); color:white; }
+  .nav-item.active { background:rgba(201,168,76,0.15); color:var(--gold); }
+  .nav-icon { font-size:1rem; width:20px; text-align:center; }
+
+  .sidebar-bottom {
+    margin-top:auto;
+    padding:1.25rem;
+    background:rgba(201,168,76,0.12);
+    border-radius:10px;
+    border:1px solid rgba(201,168,76,0.2);
+  }
+  .sidebar-bottom .plan-label { font-size:0.65rem; text-transform:uppercase; letter-spacing:1px; color:var(--gold); margin-bottom:0.3rem; }
+  .sidebar-bottom p { font-size:0.78rem; color:rgba(255,255,255,0.5); line-height:1.4; margin-bottom:0.75rem; }
+  .sidebar-bottom a { display:block; text-align:center; padding:0.5rem; background:var(--gold); border-radius:5px; text-decoration:none; font-size:0.78rem; font-weight:700; color:var(--ink); }
+
+  /* MAIN */
+  .main {
+    margin-left:240px;
+    flex:1;
+    padding:2.5rem 2.5rem;
+    max-width:1100px;
+  }
+
+  .dash-header {
+    display:flex; justify-content:space-between; align-items:flex-start;
+    margin-bottom:2rem;
+  }
+  .dash-header h1 { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:900; }
+  .dash-header p { font-size:0.88rem; color:var(--mist); margin-top:0.3rem; }
+  .readiness-pill {
+    display:flex; align-items:center; gap:0.75rem;
+    background:white; border:1px solid var(--border); border-radius:30px;
+    padding:0.6rem 1.25rem;
+  }
+  .readiness-score { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:var(--orange); }
+  .readiness-label { font-size:0.78rem; color:var(--mist); line-height:1.3; }
+
+  /* STAT CARDS */
+  .stat-cards {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem;
+    margin-bottom:2rem;
+  }
+  @media(max-width:900px) { .stat-cards { grid-template-columns:repeat(2,1fr); } }
+
+  .stat-card {
+    background:white; border:1px solid var(--border); border-radius:12px;
+    padding:1.25rem 1.5rem; position:relative; overflow:hidden;
+  }
+  .stat-card::before {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+  }
+  .stat-card.sc-behav::before { background:var(--blue); }
+  .stat-card.sc-case::before { background:#8e44ad; }
+  .stat-card.sc-streak::before { background:var(--orange); }
+  .stat-card.sc-ready::before { background:var(--green); }
+
+  .stat-card-label { font-size:0.72rem; color:var(--mist); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.4rem; }
+  .stat-card-num { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:900; line-height:1; }
+  .stat-card-sub { font-size:0.75rem; color:var(--mist); margin-top:0.3rem; }
+
+  /* TWO COL */
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; }
+  @media(max-width:900px) { .two-col { grid-template-columns:1fr; } }
+
+  .panel {
+    background:white; border:1px solid var(--border); border-radius:12px;
+    padding:1.5rem; overflow:hidden;
+  }
+  .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; }
+  .panel-title { font-weight:700; font-size:1rem; }
+  .panel-link { font-size:0.78rem; color:var(--gold); text-decoration:none; font-weight:600; }
+
+  /* CATEGORY PROGRESS */
+  .cat-progress { display:flex; flex-direction:column; gap:0.85rem; }
+  .cat-row { }
+  .cat-row-top { display:flex; justify-content:space-between; margin-bottom:0.3rem; }
+  .cat-name { font-size:0.85rem; font-weight:600; }
+  .cat-pct { font-size:0.78rem; color:var(--mist); }
+  .prog-track { height:8px; background:var(--cream); border-radius:4px; overflow:hidden; }
+  .prog-fill { height:100%; border-radius:4px; }
+
+  /* RECENT ACTIVITY */
+  .activity-list { display:flex; flex-direction:column; gap:0; }
+  .activity-item {
+    display:flex; align-items:center; gap:0.75rem;
+    padding:0.75rem 0;
+    border-bottom:1px solid var(--border);
+    font-size:0.85rem;
+  }
+  .activity-item:last-child { border-bottom:none; }
+  .act-icon { font-size:1rem; width:24px; text-align:center; }
+  .act-text { flex:1; }
+  .act-text strong { font-weight:600; }
+  .act-time { font-size:0.72rem; color:var(--mist); }
+
+  /* UPCOMING CASES */
+  .case-rec { display:flex; flex-direction:column; gap:0.75rem; }
+  .case-rec-item {
+    display:flex; gap:0.75rem; align-items:center;
+    padding:0.9rem; border:1px solid var(--border); border-radius:8px;
+    cursor:pointer; transition:all 0.15s; text-decoration:none; color:inherit;
+  }
+  .case-rec-item:hover { border-color:var(--gold); background:rgba(201,168,76,0.04); }
+  .case-firm-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .case-rec-info { flex:1; }
+  .case-rec-info h4 { font-size:0.88rem; font-weight:600; margin-bottom:0.2rem; }
+  .case-rec-meta { font-size:0.72rem; color:var(--mist); }
+  .case-rec-arrow { color:var(--mist); font-size:0.9rem; }
+
+  /* RESUME UPLOAD */
+  .resume-panel {
+    background:var(--premium); border-radius:12px; padding:1.75rem;
+    color:white; margin-bottom:1.5rem;
+    display:flex; justify-content:space-between; align-items:center; gap:1.5rem;
+    flex-wrap:wrap;
+  }
+  .resume-panel h3 { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:0.4rem; }
+  .resume-panel p { font-size:0.82rem; color:rgba(255,255,255,0.55); line-height:1.5; max-width:400px; }
+  .upload-btn {
+    padding:0.75rem 1.5rem; background:var(--gold); border-radius:6px;
+    font-weight:700; font-size:0.88rem; color:var(--ink);
+    text-decoration:none; white-space:nowrap;
+    cursor:pointer; border:none; font-family:'DM Sans',sans-serif;
+  }
+
+  /* PROFILE TARGETS */
+  .targets-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+  .target-chip {
+    display:flex; align-items:center; gap:0.5rem;
+    padding:0.6rem 0.85rem;
+    border:1.5px solid var(--border); border-radius:8px;
+    font-size:0.82rem; font-weight:600; cursor:pointer;
+    transition:all 0.15s;
+  }
+  .target-chip.selected { border-color:var(--gold); background:rgba(201,168,76,0.08); }
+  .target-chip .dot { width:8px; height:8px; border-radius:50%; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar-nav">
+  <a href="index.html" class="sidebar-logo">Case<span>Edge</span></a>
+
+  <div class="nav-section-label">Practice</div>
+  <a href="dashboard.html" class="nav-item active"><span class="nav-icon">📊</span> Dashboard</a>
+  <a href="behavioral.html" class="nav-item"><span class="nav-icon">🎯</span> Behavioral</a>
+  <a href="case-interviews.html" class="nav-item"><span class="nav-icon">💼</span> Case Library</a>
+  <a href="#" class="nav-item"><span class="nav-icon">⭐</span> Bookmarked</a>
+
+  <div class="nav-section-label">Progress</div>
+  <a href="#" class="nav-item"><span class="nav-icon">📈</span> Analytics</a>
+  <a href="#" class="nav-item"><span class="nav-icon">🏆</span> Completed</a>
+
+  <div class="nav-section-label">Account</div>
+  <a href="#" class="nav-item"><span class="nav-icon">👤</span> Profile</a>
+  <a href="#" class="nav-item"><span class="nav-icon">⚙️</span> Settings</a>
+
+  <div class="sidebar-bottom">
+    <div class="plan-label">Free Plan</div>
+    <p>Upgrade for AI-personalized answers, "great" answer breakdowns, and full case library.</p>
+    <a href="signup.html">Upgrade to Premium →</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="dash-header">
+    <div>
+      <h1>Good morning, Alex.</h1>
+      <p>You've been on a 5-day practice streak. Keep it up.</p>
+    </div>
+    <div class="readiness-pill">
+      <div class="readiness-score">62</div>
+      <div class="readiness-label">Interview<br>Readiness Score</div>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stat-cards">
+    <div class="stat-card sc-behav">
+      <div class="stat-card-label">Behavioral Practiced</div>
+      <div class="stat-card-num">18</div>
+      <div class="stat-card-sub">of 42 free questions</div>
+    </div>
+    <div class="stat-card sc-case">
+      <div class="stat-card-label">Cases Completed</div>
+      <div class="stat-card-num">3</div>
+      <div class="stat-card-sub">of 10 free cases</div>
+    </div>
+    <div class="stat-card sc-streak">
+      <div class="stat-card-label">Day Streak</div>
+      <div class="stat-card-num">5</div>
+      <div class="stat-card-sub">🔥 Best: 12 days</div>
+    </div>
+    <div class="stat-card sc-ready">
+      <div class="stat-card-label">Questions Mastered</div>
+      <div class="stat-card-num">11</div>
+      <div class="stat-card-sub">+3 this week</div>
+    </div>
+  </div>
+
+  <!-- RESUME UPLOAD BANNER -->
+  <div class="resume-panel">
+    <div>
+      <h3>⭐ Unlock Personalized Answers</h3>
+      <p>Upload your resume and build a profile. CaseEdge will generate behavioral answers tailored to your specific experience — so your responses are authentic, not generic.</p>
+    </div>
+    <button class="upload-btn" onclick="alert('Upload your resume to get AI-personalized behavioral answers based on your actual experience.')">Upload Resume →</button>
+  </div>
+
+  <!-- TWO COL -->
+  <div class="two-col">
+    <!-- Category Progress -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Behavioral Progress by Category</div>
+        <a href="behavioral.html" class="panel-link">Practice →</a>
+      </div>
+      <div class="cat-progress">
+        <div class="cat-row">
+          <div class="cat-row-top"><span class="cat-name">Leadership</span><span class="cat-pct">58%</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:58%;background:#2980b9;"></div></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-row-top"><span class="cat-name">Conflict & Disagreement</span><span class="cat-pct">25%</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:25%;background:#e67e22;"></div></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-row-top"><span class="cat-name">Failure & Resilience</span><span class="cat-pct">71%</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:71%;background:#27ae60;"></div></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-row-top"><span class="cat-name">Teamwork</span><span class="cat-pct">33%</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:33%;background:#8e44ad;"></div></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-row-top"><span class="cat-name">Achievement & Impact</span><span class="cat-pct">50%</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:50%;background:var(--gold);"></div></div>
+        </div>
+        <div class="cat-row">
+          <div class="cat-row-top"><span class="cat-name">Strategy & Goals</span><span class="cat-pct">17%</span></div>
+          <div class="prog-track"><div class="prog-fill" style="width:17%;background:var(--red);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Recent Activity</div>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <span class="act-icon">✅</span>
+          <div class="act-text"><strong>Mastered:</strong> "Tell me about a time you failed" — Behavioral</div>
+          <span class="act-time">Today</span>
+        </div>
+        <div class="activity-item">
+          <span class="act-icon">📊</span>
+          <div class="act-text"><strong>Completed:</strong> Hospital System Profitability Case (McKinsey)</div>
+          <span class="act-time">Yesterday</span>
+        </div>
+        <div class="activity-item">
+          <span class="act-icon">📖</span>
+          <div class="act-text"><strong>Practiced:</strong> Influence without authority — saw sample answer</div>
+          <span class="act-time">2 days ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="act-icon">📊</span>
+          <div class="act-text"><strong>Started:</strong> B2B SaaS Churn Analysis (Bain style)</div>
+          <span class="act-time">3 days ago</span>
+        </div>
+        <div class="activity-item">
+          <span class="act-icon">⭐</span>
+          <div class="act-text"><strong>Bookmarked:</strong> "Why consulting / why this firm?"</div>
+          <span class="act-time">4 days ago</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO COL: Recommended Cases + Target Firms -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Recommended Cases</div>
+        <a href="case-interviews.html" class="panel-link">See All →</a>
+      </div>
+      <div class="case-rec">
+        <a href="case-interviews.html" class="case-rec-item">
+          <div class="case-firm-dot" style="background:#004B87;"></div>
+          <div class="case-rec-info">
+            <h4>Fashion Retailer: Declining Sales</h4>
+            <div class="case-rec-meta">Bain · Beginner · Retail · 5 questions</div>
+          </div>
+          <span class="case-rec-arrow">→</span>
+        </a>
+        <a href="case-interviews.html" class="case-rec-item">
+          <div class="case-firm-dot" style="background:#00733B;"></div>
+          <div class="case-rec-info">
+            <h4>CPG Brand: Southeast Asia Entry</h4>
+            <div class="case-rec-meta">BCG · Beginner · Consumer Goods · 5 questions</div>
+          </div>
+          <span class="case-rec-arrow">→</span>
+        </a>
+        <a href="case-interviews.html" class="case-rec-item">
+          <div class="case-firm-dot" style="background:#cc0000;"></div>
+          <div class="case-rec-info">
+            <h4>B2B SaaS: Churn & NRR Crisis</h4>
+            <div class="case-rec-meta">Bain · Intermediate · Tech · 6 questions</div>
+          </div>
+          <span class="case-rec-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Target Firms</div>
+        <a href="#" class="panel-link">Edit →</a>
+      </div>
+      <p style="font-size:0.82rem;color:var(--mist);margin-bottom:1rem;">Your content is prioritized for these firms.</p>
+      <div class="targets-grid">
+        <div class="target-chip selected"><div class="dot" style="background:#004B87;"></div>McKinsey</div>
+        <div class="target-chip selected"><div class="dot" style="background:#cc0000;"></div>Bain</div>
+        <div class="target-chip"><div class="dot" style="background:#00733B;"></div>BCG</div>
+        <div class="target-chip"><div class="dot" style="background:#1a5276;"></div>Goldman Sachs</div>
+        <div class="target-chip"><div class="dot" style="background:#555;"></div>Other Consulting</div>
+        <div class="target-chip"><div class="dot" style="background:#c0392b;"></div>Tech (FAANG)</div>
+      </div>
+      <div style="margin-top:1.25rem;padding:0.9rem;background:var(--cream);border-radius:8px;font-size:0.8rem;color:var(--mist);line-height:1.5;">
+        💡 Your readiness score is calibrated to McKinsey and Bain interview difficulty. Focus on Conflict and Strategy categories — these are your lowest-scoring areas.
+      </div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+</body>
+</html>

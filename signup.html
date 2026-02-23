@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — CaseEdge</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f; --cream: #f5f1eb; --gold: #c9a84c;
+    --gold-light: #e8d5a3; --mist: #8899aa; --border: rgba(10,10,15,0.1);
+    --premium: #1a1a2e;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--ink); min-height:100vh; display:grid; grid-template-columns:1fr 1fr; }
+
+  @media(max-width:800px) { body { grid-template-columns:1fr; } .brand-side { display:none; } }
+
+  /* LEFT BRAND SIDE */
+  .brand-side {
+    background:var(--premium);
+    padding:3rem;
+    display:flex; flex-direction:column; justify-content:space-between;
+    position:sticky; top:0; height:100vh;
+  }
+  .brand-logo { font-family:'Playfair Display',serif; font-weight:900; font-size:2rem; color:white; }
+  .brand-logo span { color:var(--gold); }
+
+  .brand-headline {
+    font-family:'Playfair Display',serif;
+    font-size:2.8rem; font-weight:900; line-height:1.1;
+    color:white; letter-spacing:-1.5px;
+  }
+  .brand-headline em { color:var(--gold); font-style:italic; }
+
+  .brand-testimonial {
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:12px; padding:1.5rem;
+  }
+  .brand-testimonial blockquote { font-size:0.9rem; color:rgba(255,255,255,0.75); line-height:1.65; margin-bottom:0.75rem; font-style:italic; }
+  .brand-testimonial cite { font-size:0.75rem; color:var(--gold); font-style:normal; }
+
+  .brand-includes { margin-top:2rem; }
+  .brand-includes-title { font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.4); margin-bottom:0.75rem; }
+  .include-item { display:flex; gap:0.5rem; align-items:flex-start; font-size:0.85rem; color:rgba(255,255,255,0.65); margin-bottom:0.5rem; }
+  .include-item::before { content:'✓'; color:var(--gold); font-weight:700; flex-shrink:0; }
+
+  /* RIGHT FORM SIDE */
+  .form-side {
+    padding:3rem 4rem;
+    display:flex; flex-direction:column; justify-content:center;
+    min-height:100vh;
+  }
+
+  @media(max-width:900px) { .form-side { padding:2rem; } }
+
+  .form-header { margin-bottom:2.5rem; }
+  .form-header .plan-tabs { display:flex; gap:0; margin-bottom:2rem; border:1.5px solid var(--border); border-radius:8px; overflow:hidden; }
+  .plan-tab {
+    flex:1; padding:0.7rem; text-align:center;
+    font-size:0.85rem; font-weight:700; cursor:pointer;
+    border:none; background:white; font-family:'DM Sans',sans-serif;
+    color:var(--mist); transition:all 0.15s;
+  }
+  .plan-tab.active { background:var(--ink); color:white; }
+
+  .form-header h1 { font-family:'Playfair Display',serif; font-size:2rem; font-weight:900; margin-bottom:0.4rem; }
+  .form-header p { font-size:0.88rem; color:var(--mist); }
+
+  .form-group { margin-bottom:1.1rem; }
+  label { display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.4rem; color:var(--ink); }
+  input[type=text], input[type=email], input[type=password], select {
+    width:100%; padding:0.75rem 1rem;
+    border:1.5px solid var(--border); border-radius:7px;
+    font-family:'DM Sans',sans-serif; font-size:0.92rem;
+    background:white; color:var(--ink);
+    transition:border-color 0.15s;
+    outline:none;
+  }
+  input:focus, select:focus { border-color:var(--gold); }
+
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+
+  .submit-btn {
+    width:100%; padding:0.9rem;
+    background:var(--ink); color:white;
+    border:none; border-radius:7px;
+    font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:700;
+    cursor:pointer; transition:all 0.2s; margin-top:0.5rem;
+  }
+  .submit-btn:hover { background:#1a1a1a; }
+  .submit-btn.premium-btn { background:var(--gold); color:var(--ink); }
+  .submit-btn.premium-btn:hover { background:#b8943e; }
+
+  .divider { display:flex; align-items:center; gap:1rem; margin:1.25rem 0; color:var(--mist); font-size:0.8rem; }
+  .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .social-btn {
+    width:100%; padding:0.75rem; border:1.5px solid var(--border); border-radius:7px;
+    background:white; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.6rem;
+    transition:border-color 0.15s; margin-bottom:0.75rem;
+  }
+  .social-btn:hover { border-color:var(--ink); }
+
+  .form-footer { text-align:center; font-size:0.8rem; color:var(--mist); margin-top:1.25rem; }
+  .form-footer a { color:var(--gold); text-decoration:none; font-weight:600; }
+
+  .terms { font-size:0.72rem; color:var(--mist); text-align:center; margin-top:0.75rem; line-height:1.5; }
+  .terms a { color:var(--mist); }
+
+  .premium-highlight {
+    background:rgba(201,168,76,0.08);
+    border:1px solid rgba(201,168,76,0.25);
+    border-radius:8px;
+    padding:0.9rem 1.1rem;
+    margin-bottom:1.25rem;
+    font-size:0.82rem;
+    color:var(--ink);
+    line-height:1.5;
+  }
+  .premium-highlight strong { color:#b8943e; }
+</style>
+</head>
+<body>
+
+<!-- BRAND SIDE -->
+<div class="brand-side">
+  <div class="brand-logo">Case<span>Edge</span></div>
+
+  <div>
+    <div class="brand-headline">Land your<br><em>dream</em><br>offer.</div>
+    <div class="brand-includes" style="margin-top:2rem;">
+      <div class="brand-includes-title">What's included</div>
+      <div class="include-item">200+ behavioral questions with STAR frameworks</div>
+      <div class="include-item">80+ full MBB-style case studies</div>
+      <div class="include-item">Good + Great answer comparisons (Premium)</div>
+      <div class="include-item">AI-personalized answers from your resume (Premium)</div>
+      <div class="include-item">Full progress tracking & readiness score</div>
+      <div class="include-item">New cases added monthly</div>
+    </div>
+  </div>
+
+  <div class="brand-testimonial">
+    <blockquote>Built for candidates who take recruiting seriously — from first-round prep to final-round case mastery.</blockquote>
+    <cite>— The CaseEdge Team</cite>
+  </div>
+</div>
+
+<!-- FORM SIDE -->
+<div class="form-side">
+  <div class="form-header">
+    <div class="plan-tabs">
+      <button class="plan-tab active" onclick="switchPlan('free', this)">Free Plan</button>
+      <button class="plan-tab" onclick="switchPlan('premium', this)">Premium — $29/mo</button>
+    </div>
+    <h1 id="formTitle">Create your account</h1>
+    <p id="formSubtitle">Start practicing for free. No credit card required.</p>
+  </div>
+
+  <div id="premiumBanner" style="display:none;" class="premium-highlight">
+    <strong>⭐ Premium includes:</strong> AI-personalized behavioral answers from your resume, Good + Great answer breakdowns for every case question, and access to all 80+ cases and 200+ behavioral questions.
+  </div>
+
+  <button class="social-btn">
+    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Continue with Google
+  </button>
+
+  <div class="divider">or sign up with email</div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>First Name</label>
+      <input type="text" placeholder="Alex">
+    </div>
+    <div class="form-group">
+      <label>Last Name</label>
+      <input type="text" placeholder="Chen">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Email Address</label>
+    <input type="email" placeholder="alex@example.com">
+  </div>
+
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" placeholder="8+ characters">
+  </div>
+
+  <div class="form-group">
+    <label>Target Role</label>
+    <select>
+      <option value="">Select your goal...</option>
+      <option>Management Consulting (MBB)</option>
+      <option>Management Consulting (Other)</option>
+      <option>Investment Banking</option>
+      <option>Private Equity / Venture Capital</option>
+      <option>Tech (Product, Strategy, Operations)</option>
+      <option>MBA Program Recruiting</option>
+      <option>Other Business Role</option>
+    </select>
+  </div>
+
+  <div id="cardSection" style="display:none;">
+    <div class="form-group">
+      <label>Card Number</label>
+      <input type="text" placeholder="1234 5678 9012 3456">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Expiry</label>
+        <input type="text" placeholder="MM / YY">
+      </div>
+      <div class="form-group">
+        <label>CVC</label>
+        <input type="text" placeholder="123">
+      </div>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="window.location='dashboard.html'">Create Free Account →</button>
+
+  <p class="terms">By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+
+  <div class="form-footer">
+    Already have an account? <a href="login.html">Log in →</a>
+  </div>
+</div>
+
+<script>
+  function switchPlan(plan, btn) {
+    document.querySelectorAll('.plan-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const title = document.getElementById('formTitle');
+    const sub = document.getElementById('formSubtitle');
+    const card = document.getElementById('cardSection');
+    const banner = document.getElementById('premiumBanner');
+    const submitBtn = document.getElementById('submitBtn');
+    if(plan === 'premium') {
+      title.textContent = 'Start Premium';
+      sub.textContent = '$29/month · Cancel anytime · 7-day free trial included';
+      card.style.display = 'block';
+      banner.style.display = 'block';
+      submitBtn.textContent = 'Start 7-Day Free Trial →';
+      submitBtn.className = 'submit-btn premium-btn';
+    } else {
+      title.textContent = 'Create your account';
+      sub.textContent = 'Start practicing for free. No credit card required.';
+      card.style.display = 'none';
+      banner.style.display = 'none';
+      submitBtn.textContent = 'Create Free Account →';
+      submitBtn.className = 'submit-btn';
+    }
+  }
+</script>
+</body>
+</html>
